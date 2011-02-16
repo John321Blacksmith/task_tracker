@@ -12,21 +12,29 @@ python -m venv .venv
 .venv\Scripts\activate
 pip nstall -r requirements.txt
 ```
-3) Apply the migrations:
+3) In the backend folder, create te **.env** file
+and specify secret variables like that:
+```
+SECRET_KEY='django proguct key'
+DEBUG='1'
+DJANGO_ALLOWED_HOSTS='127.0.0.1 localhost'
+PROD='false'
+```
+4) Apply the migrations:
 ```
 python manage.py migrate
 ```
 
-4) Activate the server:
+5) Activate the server:
 ```
 cd ./backend && python manage.py 
 ```
-5) Open up a new **cmd** window and enter the frontent server:
+6) Open up a new **cmd** window and enter the frontent server:
 ```
 cd ./frontend
 ```
-6) Install all the node modules:
+7) Install all the node modules:
 ```
 npm install
 ```
-7) Launch up the frontend server
+8) Launch up the frontend server
