@@ -19,7 +19,7 @@ class Menu(UserInterfaceMixin):
             '6': self.close_the_task,
             'q': self.quit
         }
-        self.tasks_list = []
+        self.tasks_list = [] # a storage of the tasks
     
     def show_tasks(self):
         """
@@ -47,7 +47,10 @@ class Menu(UserInterfaceMixin):
         a particular task.
         """
         id = input('Enter the task id: ')
-        self.delete_task(id)
+        if self.delete_task(id):
+            print(f'The task #{id} has been deleted.')
+        else:
+            print('No such task found')
 
     def change(self):
         """
@@ -57,7 +60,21 @@ class Menu(UserInterfaceMixin):
         id = input('Enter the task id: ')
         title = input('Update title: ')
         description = input('Update info: ')
-        self.change_task(id=id, title=title, description=description)
+        if self.change_task(id=id, title=title, description=description):
+            print(f'The task #{id} has been changed.')
+        else:
+            print('No such task found')
+            
+    def close_the_task(self):
+        """
+        Alow the user to remove the
+        tasks from the active list.
+        """
+        id = input('Enter the task id: ')
+        if self.mark_as_completed(id):
+            print(f'The task #{id} has been deactivated')
+        else:
+            print('No such task found')
         
     def search(self):
         """
@@ -66,22 +83,19 @@ class Menu(UserInterfaceMixin):
         his seeking requirements.
         """
         pattern = input('Enter a word that is related to the task: ')
-        print(self.search_task(pattern))
         
+        result = self.search_task(pattern)
+        if not result:
+            print('No tasks found')
+        else:
+            print(result)
+            
     def quit(self):
         """
         Stop the program.
         """
         sys.exit()
         
-    def close_the_task(self):
-        """
-        Alow the user to remove the
-        tasks from the active list.
-        """
-        id = input('Enter the task id: ')
-        self.mark_as_completed(id)
-    
     def show_menu(self):
         print(
             """
