@@ -9,12 +9,7 @@ class TasksListMixin(list):
     for the tasks
 
     """
-    
-    def append(self, task):
-        self.global_id += 1
-        task.id = self.global_id
-        
-        super().append(task)
+    ...
 
 
 class UserInterfaceMixin:
@@ -40,15 +35,28 @@ class UserInterfaceMixin:
         """
         self.tasks_list.append(Task(**kwargs))
     
+    def get_task(self, id):
+        """
+        Return a task object
+        via id for further usage.
+        """
+        try:
+            for i in range(0, len(self.tasks_list)):
+                if self.tasks_list[i].id == int(id):
+                    return self.tasks_list[i]
+        except IndexError:
+            return None
+        
+    
     def change_task(self, **kwargs) -> None:
         """
         Change the data of the
         existing task object.
         """
-        task = [task for task in self.tasks_list if task.id == int(kwargs['id'])]
-        if task[0]:
-            task[0].title = kwargs['title']
-            task[0].description = kwargs['description']
+        task = self.get_task(kwargs['id'])
+        if task:
+            task.title = kwargs['title']
+            task.description = kwargs['description']
         else:
             return None
         
@@ -57,9 +65,9 @@ class UserInterfaceMixin:
         """
         Delete the existing task.
         """
-        task = [task for task in self.tasks_list if task.id == int(id)]
-        if task[0]:
-            self.tasks_list.remove(task[0])
+        task = self.get_task(id)
+        if task:
+            self.tasks_list.remove(task)
     
     
     def mark_as_completed(self, id) -> None:
@@ -67,9 +75,9 @@ class UserInterfaceMixin:
         Find the active task and
         deactivate it.
         """
-        task = [task for task in self.tasks_list if task.id == int(id)]
-        if task[0]:
-            task[0].is_active = False if task[0].is_active else None
+        task = self.get_task(id)
+        if task:
+            task.is_active = False if task.is_active else None
 
 
 class Task:
@@ -85,17 +93,18 @@ class Task:
         self.date = datetime.date.today()
         self.is_active = False | True
         
-    def does_exist(self, pattern) -> bool:
+    @property
+    def task_features(self) -> list[str]:
+        """
+        Hold the values of the
+        task fields.
+        """
+        return [val for val in self.__dict__.values() if isinstance(val, str)]
+        
+    def does_exist(self, pattern: str) -> bool:
         """
         Verify if the task has
         any fields the pattern
         can be in.
-        Args:
-            pattern (_str_): the a piece of string that
-                             should be consisted in the
-                             object data 
-
-        Returns:
-            bool: True if pattern is in object data, else - False
         """
-        return True if pattern in self.title else False
+        return True if True in [(pattern in val) for val in self.task_features] else False
