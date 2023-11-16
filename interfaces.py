@@ -1,17 +1,6 @@
 import datetime
 
 
-
-class TasksListMixin(list):
-    """
-    This class represents a 
-    customized list dedicated
-    for the tasks
-
-    """
-    ...
-
-
 class UserInterfaceMixin:
     """
     This class represents a
@@ -27,7 +16,8 @@ class UserInterfaceMixin:
 
         :return: bool
         """
-        return [task for task in self.tasks_list if task.does_exist(pattern)]
+        tasks = [task for task in self.tasks_list if task.does_exist(pattern)]
+        return tasks if len(tasks) != 0 else None
         
     def create_task(self, **kwargs) -> None:
         """
@@ -48,7 +38,7 @@ class UserInterfaceMixin:
             return None
         
     
-    def change_task(self, **kwargs) -> None:
+    def change_task(self, **kwargs) -> bool:
         """
         Change the data of the
         existing task object.
@@ -57,20 +47,25 @@ class UserInterfaceMixin:
         if task:
             task.title = kwargs['title']
             task.description = kwargs['description']
+            
+            return True
         else:
-            return None
+            return False
         
         
-    def delete_task(self, id) -> None:
+    def delete_task(self, id) -> bool:
         """
         Delete the existing task.
         """
         task = self.get_task(id)
         if task:
             self.tasks_list.remove(task)
+            return True
+        else:
+            return False
     
     
-    def mark_as_completed(self, id) -> None:
+    def mark_as_completed(self, id) -> bool:
         """
         Find the active task and
         deactivate it.
@@ -78,6 +73,9 @@ class UserInterfaceMixin:
         task = self.get_task(id)
         if task:
             task.is_active = False if task.is_active else None
+            return True
+        else:
+            return False
 
 
 class Task:
