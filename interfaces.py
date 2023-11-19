@@ -1,4 +1,5 @@
 import datetime
+from exceptions import NonActiveTask
 
 
 class UserInterfaceMixin:
@@ -34,8 +35,8 @@ class UserInterfaceMixin:
             for i in range(0, len(self.tasks_list)):
                 if self.tasks_list[i].id == int(id):
                     return self.tasks_list[i]
-        except IndexError:
-            return None
+        except (IndexError, ValueError):
+            return False
         
     
     def change_task(self, **kwargs) -> bool:
@@ -43,7 +44,7 @@ class UserInterfaceMixin:
         Change the data of the
         existing task object.
         """
-        task = self.get_task(kwargs['id'])
+        task = self.get_task(kwargs['id']) if not kwargs['task'] else kwargs['task']
         if task:
             task.title = kwargs['title']
             task.description = kwargs['description']
@@ -68,11 +69,16 @@ class UserInterfaceMixin:
     def mark_as_completed(self, id) -> bool:
         """
         Find the active task and
-        deactivate it.
+        deactivate it. The True
+        is only returned when 
+        the result is successful.
         """
         task = self.get_task(id)
         if task:
-            task.is_active = False if task.is_active else None
+            if task.is_active:
+                task.is_active = False
+            else:
+                raise NonActiveTask(task.title, task)
             return True
         else:
             return False
