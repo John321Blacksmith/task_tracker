@@ -1,5 +1,6 @@
 import sys
 from interfaces import UserInterfaceMixin #, TasksListMixin
+from exceptions import NonActiveTask
 
 
 class Menu(UserInterfaceMixin):
@@ -58,23 +59,30 @@ class Menu(UserInterfaceMixin):
         the task info.
         """
         id = input('Enter the task id: ')
-        title = input('Update title: ')
-        description = input('Update info: ')
-        if self.change_task(id=id, title=title, description=description):
-            print(f'The task #{id} has been changed.')
+        task = self.get_task(id)
+        if task:
+            title = input('Update title: ')
+            description = input('Update info: ')
+            if self.change_task(task=task, title=title, description=description):
+                print(f'The task #{id} has been changed.')
+            else:
+                print('Cannot change the task.')
         else:
             print('No such task found')
-            
+                
     def close_the_task(self):
         """
         Alow the user to remove the
         tasks from the active list.
         """
         id = input('Enter the task id: ')
-        if self.mark_as_completed(id):
-            print(f'The task #{id} has been deactivated')
-        else:
-            print('No such task found')
+        try:
+            if self.mark_as_completed(id):
+                print(f'The task #{id} has been deactivated')
+            else:
+                print('No such task found')
+        except NonActiveTask as ex:
+            print(f'The task #{ex.task.id} has already been closed.')
         
     def search(self):
         """
