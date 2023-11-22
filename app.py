@@ -19,7 +19,7 @@ class Menu(UserInterfaceMixin):
             '6': self.close_the_task,
             'q': self.quit
         }
-        self.tasks_list = [] # a storage of the tasks
+        self.tasks_list = [] # a storage of the tasks(Still for the program runtime)
     
     def show_tasks(self):
         """
