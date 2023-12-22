@@ -20,11 +20,13 @@ class UserInterfaceMixin:
         tasks = [task for task in self.tasks_list if task.does_exist(pattern)]
         return tasks if len(tasks) != 0 else None
         
-    def create_task(self, **kwargs) -> None:
+    def create_task(self, dataset: dict[str, set], **kwargs) -> None:
         """
         Add a new task object.
         """
-        self.tasks_list.append(Task(**kwargs))
+        task = Task(**kwargs)
+        task.category = self.categorize(task.literal_fields, dataset)
+        self.tasks_list.append(task)
     
     def get_task(self, id):
         """
@@ -52,7 +54,6 @@ class UserInterfaceMixin:
             return True
         else:
             return False
-        
         
     def delete_task(self, id) -> bool:
         """
@@ -82,6 +83,38 @@ class UserInterfaceMixin:
             return True
         else:
             return False
+    
+    def categorize(self, literal_data: list[str], datasets: dict[str, set]) -> str | None:
+        """
+        Take an object's literal data and a category dataset
+        and find the most accurate category.
+
+        Args:
+            literal_data (list[str]): All the task fields of the str type
+            datasets (dict[str, set]): a hash table with word collections with associated categories
+
+        Returns:
+            tuple[str, int]: A pair of category name and the number of common words
+        """
+        # take each dataset and count the common words, record the
+        # pairs of category and common words number
+        frequency = {k: len({val for val in literal_data} & v) for k, v in datasets.items()}
+        
+        # couple the category name and num of common words
+        # the list is empty if there are no matches at all
+        tups = [(k, v) for k, v in frequency.items() if v > 0]
+        
+        # go through the list of tuples
+        # and find one with the greatest
+        # num of common words
+        if len(tups) > 0:
+            most_possible = tups[0]
+            for i in range(len(tups)):
+                if tups[i][1] > most_possible[1]:
+                    most_possible = tups[i]
+            return most_possible[0]
+        else:
+            return None
 
 
 class Task:
@@ -96,14 +129,26 @@ class Task:
         self.description = description
         self.date = datetime.date.today()
         self.is_active = False | True
-        
+    
     @property
-    def task_features(self) -> list[str]:
+    def literal_fields(self) -> list[str]:
         """
-        Hold the values of the
-        task fields.
+        Hold the string 
+        values of the task.
         """
-        return [val for val in self.__dict__.values() if isinstance(val, str)]
+        complete_list = []
+        for l in [val.split(' ') for val in self.__dict__.values() if isinstance(val, str)]:
+            for w in l:
+                complete_list.append(w)
+        return complete_list
+    
+    @property
+    def category(self):
+        return self._category
+    
+    @category.setter
+    def category(self, category: str):
+        self._category = category if isinstance(category, str) else None
         
     def does_exist(self, pattern: str) -> bool:
         """
@@ -111,4 +156,4 @@ class Task:
         any fields the pattern
         can be in.
         """
-        return True if True in [(pattern in val) for val in self.task_features] else False
+        return True if True in [(pattern in val) for val in self.literal_fields] else False
