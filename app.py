@@ -1,6 +1,15 @@
 import sys
-from interfaces import UserInterfaceMixin #, TasksListMixin
+from interfaces import UserInterfaceMixin
 from exceptions import NonActiveTask
+
+
+categories = {
+    'sport': {'run', 'water', 'go', 'exercise', 'rest', 'muscle', 'gym'},
+    'home': {'clean', 'family', 'care', 'cook', 'room', 'flat', 'home', 'house', 'children', 'child', 'son', 'daughter'},
+    'work': {'collegues', 'weekday' 'work', 'boss', 'director', 'office', 'hour', 'tommorow', 'yesterday', 'deadline', 'finish'},
+    'cooking': {'water', 'cook', 'dinner', 'breakfast', 'lunch', 'meal', 'tasty', 'family', 'kitchen'},
+    'study': {'project', 'learn', 'library', 'information', 'by', 'heart'}
+}
 
 
 class Menu(UserInterfaceMixin):
@@ -16,20 +25,47 @@ class Menu(UserInterfaceMixin):
             '2': self.delete,
             '3': self.change,
             '4': self.search,
-            '5': self.show_tasks,
+            '5': self.show_all_tasks,
             '6': self.close_the_task,
+            '7': self.split_by_cats,
             'q': self.quit
         }
         self.tasks_list = [] # a storage of the tasks
     
-    def show_tasks(self):
+    def show_all_tasks(self):
         """
         Allow the user to see
-        a list of tasks.
+        a list of all tasks.
         """
         if self.tasks_list:
             for task in self.tasks_list:
-                print(f'Task #{task.id}:\nDate: {task.date}\nTitle: \'{task.title}\'\nDescription: {task.description}\nIs active: {task.is_active}\n\n\n')
+                print(self.get_task_label(task))
+                
+    def get_task_label(self, task):
+        """
+        Form an ordinary card for
+        a task.
+        """
+        return f"""Task #{task.id}:\n
+                        Date: {task.date}\n
+                        Title: \'{task.title}\'\n
+                        Description: {task.description}\n
+                        Is active: {task.is_active}\n
+                        Category: {task.category}\n\n\n
+                        """
+    
+    def split_by_cats(self):
+        """
+        Show the tasks related
+        to a particular category.
+        """
+        if len(self.tasks_list) > 0:
+            cats = [task.category for task in self.tasks_list]
+            for cat in cats:
+                category_tasks = [task for task in self.tasks_list if task.category == cat]
+                print(f'###{cat.upper()}###')
+                for i in range(len(category_tasks)):
+                    print(self.get_task_label(category_tasks[i]))
     
     def create(self):
         """
@@ -40,7 +76,7 @@ class Menu(UserInterfaceMixin):
         self.global_id += 1
         title = input('Name your task: ')
         description = input('Specify some info: ')
-        self.create_task(id=self.global_id, title=title, description=description)
+        self.create_task(categories, id=self.global_id, title=title, description=description)
 
     def delete(self):
         """
@@ -111,8 +147,9 @@ class Menu(UserInterfaceMixin):
                 Prompt '2' to delete tasks,
                 Prompt '3' to change tasks,
                 Prompt '4' to search tasks,
-                Prompt '5' to show_tasks,
-                Prompt '6' to deactivate tasks
+                Prompt '5' to show all tasks,
+                Prompt '6' to deactivate tasks,
+                Prompt '7' to show tasks of a category
             """
         )
     
