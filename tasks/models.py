@@ -31,8 +31,17 @@ class Task(models.Model):
         return all_literals
     
     def get_category(self, dataset: dict[str, set[str]]) -> str | None:
-        stats = {k: len(self.literal_data & v) for k, v in dataset.items()} # record stats
+        
+        object_set = set() # only the contained words
+        for cat in dataset.keys():
+            for lit_w in self.literal_data:
+                for cat_w in dataset[cat]:
+                    if lit_w in cat_w:
+                        object_set.add(cat_w)
+                        
+        stats = {k: len(object_set & v) for k, v in dataset.items()} # record stats
         tups = [(k, v) for k, v in stats.items() if v > 0] # tuples for sorting stats
+        
         if len(tups) > 0:
             possible_category = tups[0]
             for i in range(0, len(tups)):
