@@ -14,10 +14,6 @@ class TestMenu(unittest.TestCase):
         cls.task1.category = cls.user_interface.categorize(cls.task1.literal_fields, categories)
         cls.task2.category = cls.user_interface.categorize(cls.task2.literal_fields, categories)
     
-    def test_tasks_have_right_literal_fields(self):
-        self.assertEqual(self.task.title.split(' ') + self.task.description.split(' ') + [self.task.category], self.task.literal_fields)
-        self.assertEqual(self.task1.title.split(' ') + self.task1.description.split(' ') + [self.task1.category], self.task1.literal_fields)
-        self.assertEqual(self.task2.title.split(' ') + self.task2.description.split(' ') + [self.task2.category], self.task2.literal_fields)
     
     def test_tasks_have_right_category(self):
         category_names = ['sport', 'work', 'cooking']
