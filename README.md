@@ -1,1 +1,0 @@
-The first version of the Task Tracker App.
