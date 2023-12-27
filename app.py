@@ -22,7 +22,7 @@ class Menu(UserInterfaceMixin):
             '7': self.split_by_cats,
             'q': self.quit
         }
-        self.tasks_list = [] # a storage of the tasks
+        self.tasks_list = [] # a storage of the tasks(Still for the program runtime)
     
     def show_all_tasks(self):
         """
