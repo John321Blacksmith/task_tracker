@@ -1,14 +1,6 @@
 import unittest
 from interfaces import Task, UserInterfaceMixin
-
-
-categories = {
-    'sport': {'run', 'water', 'go', 'exercise', 'rest', 'muscle', 'gym'},
-    'home': {'clean', 'family', 'care', 'cook', 'room', 'flat', 'home', 'house', 'children', 'child', 'son', 'daughter'},
-    'work': {'collegues', 'weekday' 'work', 'boss', 'director', 'office', 'hour', 'tommorow', 'yesterday', 'deadline', 'finish'},
-    'cooking': {'water', 'cook', 'dinner', 'breakfast', 'lunch', 'meal', 'tasty', 'family', 'kitchen'},
-    'study': {'project', 'learn', 'library', 'information', 'by', 'heart'}
-}
+from dataset import categories
 
 
 class TestMenu(unittest.TestCase):
