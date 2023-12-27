@@ -83,8 +83,8 @@ class UserInterfaceMixin:
             return True
         else:
             return False
-    
-    def categorize(self, literal_data: list[str], datasets: dict[str, set]) -> str | None:
+
+    def categorize(self, literal_data: set[str], datasets: dict[str, set[str]]) -> str | None:
         """
         Take an object's literal data and a category dataset
         and find the most accurate category.
@@ -96,9 +96,20 @@ class UserInterfaceMixin:
         Returns:
             tuple[str, int]: A pair of category name and the number of common words
         """
+        
+        # create a set of words from
+        # all dataset categories which
+        # contain a pattern of every 
+        # word the task object contains
+        object_set = set()
+        for cat in datasets.keys():
+            for lit_v in literal_data:
+                for cat_w in datasets[cat]:
+                    if lit_v in cat_w:
+                        object_set.add(cat_w)
         # take each dataset and count the common words, record the
         # pairs of category and common words number
-        frequency = {k: len({val for val in literal_data} & v) for k, v in datasets.items()}
+        frequency = {k: len(object_set & v) for k, v in datasets.items()}
         
         # couple the category name and num of common words
         # the list is empty if there are no matches at all
@@ -136,10 +147,10 @@ class Task:
         Hold the string 
         values of the task.
         """
-        complete_list = []
+        complete_list = set()
         for l in [val.split(' ') for val in self.__dict__.values() if isinstance(val, str)]:
             for w in l:
-                complete_list.append(w)
+                complete_list.add(w)
         return complete_list
     
     @property
