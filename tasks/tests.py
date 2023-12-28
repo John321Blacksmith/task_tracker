@@ -1,6 +1,6 @@
 from django.test import TestCase
 from .models import Category, Task
-from .serializers import TasksListSerializer
+from .serializers import TasksListSerializer, TaskCreationSerializer
 
 # Create your tests here.
 
@@ -43,30 +43,44 @@ class TestSerializationProcess(FixtureData):
     """
     Test either data (de-)searilization.
     """
-    def test_tasks_list_is_serialized(self):
+       
+        
+    def test_tasks_list_is_represented(self):
         result = [
-            {
-                'pk': 1,
-                'category': 'study',
-                'title': 'Prepare for lessons',
-                'status': 'active'
-            },
-            {
-                'pk': 2,
-                'category': 'home',
-                'title': 'Go for a walk with my pets',
-                'status': 'active'
-            },
-            {
-                'pk': 3,
-                'category': 'готовка',
-                'title': 'Приготовить что нибудь',
-                'status': 'active'
-            }
+           {
+               'pk': 1,
+               'category': 'study',
+               'title': 'Prepare for lessons',
+               'status': 'active'
+           },
+           {
+               'pk': 2,
+               'category': 'home',
+               'title': 'Go for a walk with my pets',
+               'status': 'active'
+           },
+           {
+               'pk': 3,
+               'category': 'готовка',
+               'title': 'Приготовить что нибудь',
+               'status': 'active'
+           }
             
         ]
         tasks_list = Task.objects.all()
         self.assertNotEqual(len(tasks_list), 0)
         serializer = TasksListSerializer(tasks_list, many=True)
+        self.assertIn(result[0]['title'], [data['title'] for data in serializer.data])
+    
+    def test_task_object_is_created(self):
+        raw_data = {
+            'title': 'clean up the flat',
+            'description': 'mom told me to make dinner and order the thing in our room'
+        }
+        serializer = TaskCreationSerializer(data=raw_data)
+        self.assertIs(serializer.is_valid(), True)
+        serializer.save()
+        task = Task.objects.get(title=raw_data['title'])
+        self.assertEqual(task.category.title, 'home')
         
-        self.assertIn(result[0]['title'], [data['title'] for data in serializer.data]) 
+        
