@@ -37,8 +37,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # custom apps
     'tasks.apps.TasksConfig',
     
+    # API docs
+    'drf_yasg',
+    
+    # native 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
