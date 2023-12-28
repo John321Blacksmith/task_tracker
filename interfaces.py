@@ -97,15 +97,14 @@ class UserInterfaceMixin:
             tuple[str, int]: A pair of category name and the number of common words
         """
         
-        # create a set of words from
-        # all dataset categories which
-        # contain a pattern of every 
-        # word the task object contains
+        # create a set of patterns 
+        # that are contained in the
+        # the object literals
         object_set = set()
         for cat in datasets.keys():
             for lit_v in literal_data:
                 for cat_w in datasets[cat]:
-                    if lit_v in cat_w:
+                    if cat_w in lit_v:
                         object_set.add(cat_w)
         # take each dataset and count the common words, record the
         # pairs of category and common words number
