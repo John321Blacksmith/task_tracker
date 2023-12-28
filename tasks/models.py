@@ -4,14 +4,25 @@ from datasets import categories
 
 
 class Category(models.Model):
+    """
+    Tis model represents a
+    category object.
+    """
     title = models.CharField(max_length=50)
 
     class Meta:
         verbose_name  = 'category'
         verbose_name_plural = 'categories'
+    
+    def __str__(self):
+        return self.title
         
 
 class Task(models.Model):
+    """
+    This model represents a
+    task object.
+    """
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -21,9 +32,17 @@ class Task(models.Model):
     class Meta:
         verbose_name = 'task'
         verbose_name_plural = 'tasks'
-        
+    
+    def __str__(self):
+        return self.title
+    
     @property
     def literal_data(self) -> set:
+        """
+        All the literal string
+        data is collected in
+        the set.
+        """
         all_literals = set()
         for l in [f.split(' ') for f in self.__dict__.values() if isinstance(f, str)]:
             for w in l:
@@ -31,7 +50,15 @@ class Task(models.Model):
         return all_literals
     
     def get_category(self, dataset: dict[str, set[str]]) -> str | None:
-        
+        """
+        Analyze the collected string
+        data and define what category
+        the task is mostly of.
+        Params:
+            :dataset: dict[str, set[str]] - a collection of patterns
+        Output:
+            :category_name: str | None - probable category
+        """
         object_set = set() # only the contained patterns
         for cat in dataset.keys():
             for lit_v in self.literal_data:
@@ -52,6 +79,11 @@ class Task(models.Model):
         return None
         
     def save(self, *args, **kwargs):
+        """
+        Save the task under an
+        existing category or
+        refer it to `other`.
+        """
         category = self.get_category(categories)
         try:
             self.category = Category.objects.get(title=category)
