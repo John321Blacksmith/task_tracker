@@ -1,12 +1,14 @@
 from django.test import TestCase
 from .models import Category, Task
+from .serializers import TasksListSerializer
 
 # Create your tests here.
 
 
-class TestTaskLifeSpan(TestCase):
+class FixtureData(TestCase):
     """
-    Test basic data manipulation.
+    This class delivers its fixture
+    to other cases.
     """
     @classmethod
     def setUp(cls):
@@ -24,7 +26,12 @@ class TestTaskLifeSpan(TestCase):
             description='Было бы круто пожарить мясца сегодня вечером'
         )
         cls.cat_titles = [cat_title for cat_title in Category.objects.values('title')]
-        
+
+
+class TestTaskLifeSpan(FixtureData):
+    """
+    Test basic data manipulation.
+    """
     def test_tasks_have_right_category(self):
         self.assertEqual(self.study_task.category.title, 'study')
         self.assertEqual(self.home_task.category.title, 'home')
@@ -32,7 +39,34 @@ class TestTaskLifeSpan(TestCase):
         self.assertNotIn('other', self.cat_titles)
     
 
-class TestSerializationProcess(TestCase):
-    @classmethod
-    def setUp(cls):
-        ...
+class TestSerializationProcess(FixtureData):
+    """
+    Test either data (de-)searilization.
+    """
+    def test_tasks_list_is_serialized(self):
+        result = [
+            {
+                'pk': 1,
+                'category': 'study',
+                'title': 'Prepare for lessons',
+                'status': 'active'
+            },
+            {
+                'pk': 2,
+                'category': 'home',
+                'title': 'Go for a walk with my pets',
+                'status': 'active'
+            },
+            {
+                'pk': 3,
+                'category': 'готовка',
+                'title': 'Приготовить что нибудь',
+                'status': 'active'
+            }
+            
+        ]
+        tasks_list = Task.objects.all()
+        self.assertNotEqual(len(tasks_list), 0)
+        serializer = TasksListSerializer(tasks_list, many=True)
+        
+        self.assertIn(result[0]['title'], [data['title'] for data in serializer.data]) 
