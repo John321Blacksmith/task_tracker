@@ -1,5 +1,5 @@
 from django.db import models
-from datasets import en_categories
+from datasets import categories
 # Create your models here.
 
 
@@ -32,13 +32,14 @@ class Task(models.Model):
     
     def get_category(self, dataset: dict[str, set[str]]) -> str | None:
         
-        object_set = set() # only the contained words
+        object_set = set() # only the contained patterns
         for cat in dataset.keys():
-            for lit_w in self.literal_data:
-                for cat_w in dataset[cat]:
-                    if lit_w in cat_w:
-                        object_set.add(cat_w)
-                        
+            for lit_v in self.literal_data:
+                if len(lit_v) > 2:
+                    for pattern in dataset[cat]:
+                        if pattern in lit_v:
+                            object_set.add(pattern)
+        # the pattern comp is then compared again
         stats = {k: len(object_set & v) for k, v in dataset.items()} # record stats
         tups = [(k, v) for k, v in stats.items() if v > 0] # tuples for sorting stats
         
@@ -51,7 +52,7 @@ class Task(models.Model):
         return None
         
     def save(self, *args, **kwargs):
-        category = self.get_category(en_categories)
+        category = self.get_category(categories)
         try:
             self.category = Category.objects.get(title=category)
         except Category.DoesNotExist:
