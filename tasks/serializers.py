@@ -8,7 +8,7 @@ class TasksListSerializer(serializers.ModelSerializer):
     the fields of the task
     for list representation.
     """
-    category = serializers.SerializerMethodField('get_category_title')
+    category = serializers.CharField(source='category.title')
     status = serializers.SerializerMethodField('get_status')
     class Meta:
         model = Task
@@ -22,9 +22,6 @@ class TasksListSerializer(serializers.ModelSerializer):
     
     def get_status(self, obj):
         return 'active' if obj.is_active else 'inactive'
-    
-    def get_category_title(self, obj):
-        return obj.category.title
     
 
 class TaskCreationSerializer(serializers.ModelSerializer):
@@ -46,7 +43,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     task observation or update.
     """
     status = serializers.SerializerMethodField('get_status')
-    category = serializers.SerializerMethodField('get_category_name')
+    category = serializers.CharField(source='category.title')
     class Meta:
         model = Task
         fields = [
@@ -56,9 +53,6 @@ class TaskDetailSerializer(serializers.ModelSerializer):
             'date_published',
             'status'
         ]
-    
-    def get_category_name(self, obj):
-        return obj.category.title
     
     def get_status(self, obj):
         return 'active' if obj.is_active else 'inactive'
