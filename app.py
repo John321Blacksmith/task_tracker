@@ -1,6 +1,6 @@
 import sys
-from interfaces import UserInterfaceMixin
-from exceptions import NonActiveTask
+from logic.interfaces import UserInterfaceMixin
+from logic.exceptions import NonActiveTask
 from dataset import categories
 
 
