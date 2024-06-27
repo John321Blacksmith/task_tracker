@@ -1,5 +1,5 @@
 from django.db import models
-from datasets import categories
+from memory.datasets import categories
 # Create your models here.
 
 
