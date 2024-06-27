@@ -1,7 +1,7 @@
 import sys
 from logic.interfaces import UserInterfaceMixin
 from logic.exceptions import NonActiveTask
-from dataset import categories
+from memory.dataset import categories
 
 
 class Menu(UserInterfaceMixin):
