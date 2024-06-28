@@ -7,30 +7,31 @@ FROM python:3.10.12
 ENV DockerHOME=/home/app/webapp
 
 # create a working directory
-RUN mkdir -p $DockerHOME
+# RUN mkdir -p $DockerHOME
 
 # location of the code in container
 WORKDIR $DockerHOME
 
-
 ENV PYTHONDONTWRITEBYTECODE=1
-
 ENV PYTHONUNBUFFERED=1 
+
 
 # install dependencies
 RUN pip install --upgrade pip
 
 # copy my backend into
 # the docker home directory
-COPY . $DockerHOME
+# COPY . $DockerHOME
+COPY ./requirements.txt .
 
 # istalling all libraries listed
 # the requirements file
 RUN pip install -r requirements.txt
 
+COPY . .
 # define what port the
 # server will be ran on
-EXPOSE 8000
+# EXPOSE 8000
 
 # launching the server
-CMD ["python", "manage.py", "runserver", "8000"]
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
