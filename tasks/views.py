@@ -1,42 +1,69 @@
-from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from rest_framework.generics import GenericAPIView, RetrieveUpdateDestroyAPIView
-from .models import Task
-from .serializers import TasksListSerializer, TaskDetailSerializer, TaskCreationSerializer
+from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import SimpleTask, Project, Sprint, SprintTask
+from .serializers import (
+    SimpleTasksListSerializer, ProjectSerializer,
+    SprintSerializer, SprintTaskSerializer
+)
 
 # Create your views here.
 
-class TasksListAPIView(GenericAPIView):
+class SimpleTaskViewSet(ModelViewSet):
     """
-    This view represents a
-    list of tasks with the
-    defined fields.
+    This view facilitates
+    management over the
+    tasks.
     """
-    queryset = Task.objects.all()
-    serializer_class = TasksListSerializer
+    queryset = SimpleTask.objects.all()
+    serializer_class = SimpleTasksListSerializer
     renderer_classes = [JSONRenderer]
-    
-    
-    def get(self, request, *args, **kwargs):
-        tasks = self.get_queryset()
-        serializer = self.serializer_class(tasks, many=True)
-        return Response(serializer.data)
-    
-    def post(self, request, *args, **kwargs):
-        serializer = TaskCreationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status.HTTP_201_CREATED)
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+    filter_backends = [DjangoFilterBackend]
+    filterset_filelds = ['title', 'due_date', 'is_completed']
     
 
-class TaskDetailAPIView(RetrieveUpdateDestroyAPIView):
+
+class ProjectViewSet(ModelViewSet):
     """
-    This view shows up a task
-    and facilitates RUD methods
+    This view facilitates
+    management over the
+    projects.
     """
-    queryset = Task.objects.all()
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
     renderer_classes = [JSONRenderer]
-    serializer_class = TaskDetailSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_filelds = ['created_at']
+    
+    
+class SprintViewSet(ModelViewSet):
+    """
+    This view facilitates
+    management over the
+    sprints.
+    """
+    queryset = Sprint.objects.all()
+    renderer_classes = [JSONRenderer]
+    serializer_class = SprintSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['started_at', 'ends_at']
+    
+    
+class SprintTaskViewSet(ModelViewSet):
+    """
+    This view facilitates
+    management over the
+    sprint tasks.
+    """
+    queryset = SprintTask.objects.all()
+    renderer_classes = [JSONRenderer]
+    serializer_class = SprintTaskSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        'title',
+        'description',
+        'created_at',
+        'is_completed'
+    ]
