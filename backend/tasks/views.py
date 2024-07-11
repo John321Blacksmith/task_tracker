@@ -21,7 +21,12 @@ class SimpleTaskViewSet(ModelViewSet):
     serializer_class = SimpleTasksListSerializer
     renderer_classes = [JSONRenderer]
     filter_backends = [DjangoFilterBackend]
-    filterset_filelds = ['title', 'due_date', 'is_completed']
+    filterset_filelds = [
+        'title',
+        'due_date',
+        'priority',
+        'is_completed'
+    ]
     
 
 
@@ -65,5 +70,6 @@ class SprintTaskViewSet(ModelViewSet):
         'title',
         'description',
         'created_at',
+        'priority',
         'is_completed'
     ]

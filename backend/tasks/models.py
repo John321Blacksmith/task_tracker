@@ -27,6 +27,7 @@ class Task(models.Model):
     description = models.TextField(verbose_name='Description')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Creation date')
     is_completed = models.BooleanField(default=False, verbose_name='Completion state')
+    priority =  models.CharField(max_length=30, choices=[('high', 'high'), ('moderate', 'moderate'), ('minor', 'minor')])
     
     class Meta:
         abstract = True
