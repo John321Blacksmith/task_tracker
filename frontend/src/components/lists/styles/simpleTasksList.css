@@ -1,17 +1,16 @@
-.simple-tasks-search form {
-    position: relative;
-    width: 30%;
-    top: -120px;
-    left: 150px;
-}
-
 .simple-tasks-container {
-    position: relative;
     top: -100px;
     left: 120px;
-    width: 50%;
+    width: 40%;
 }
 
-.simple-tasks-list .simple-task-item{
+ul .simple-task-item:hover {
     background-color: green;
+    border-color: green;
+    border-width: 2px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    width: 10%
 }

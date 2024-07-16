@@ -8,12 +8,11 @@ export default function MainPage() {
     // a start page for the user
     // so he can do some stuff
     // over his tasks or projects
+    const {data} = useGetTasksQuery({ body: { priority: '', is_completed: '' }, method: 'GET' })
     
-    const {data, error, isLoading, isFetching} = useGetTasksQuery()
-
     return (
         <>
-             {!!data && <SimpleTasksList tasks={data}/>}
+            {!!data && <SimpleTasksList tasks={data}/>}
         </>
     )
 }

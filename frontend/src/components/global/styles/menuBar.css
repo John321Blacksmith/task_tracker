@@ -4,3 +4,7 @@
     width: 120px;
     border-color: black;
 }
+
+.menu-bar div .menu-options li:hover {
+    background-color: grey;
+}
