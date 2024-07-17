@@ -7,6 +7,13 @@ import { useLazyGetTasksQuery } from '../../store/api_hooks/tasks_app';
 import './styles/simpleTasksList.css';
 
 
+const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+}
+
 
 const ContentSpinner = () => {
   return (
@@ -47,10 +54,12 @@ export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
 
 
 const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.Dispatch<React.SetStateAction<STasksFilterQuery>>, queryHook: Function}) => {
-    
-    const clickHandler = () => {
+
+    useEffect(() => {
+        if (props.param) {
         props.queryHook({body: props.param, method: 'GET'})
-    }
+        }
+    }, [props.param, props.paramSetter])
 
     return (
         <>
@@ -61,10 +70,10 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
                         {props.param.priority === '' ? 'all' : props.param.priority}
                     </a>
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: ''})}>all</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: 'high'})}>high</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: 'moderate'})}>moderate</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: 'minor'})}>minor</li>
+                        {
+                            ['', 'high', 'moderate', 'minor']
+                            .map((choice)=> {return <><li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: choice})}>{choice === '' ? 'all' : choice}</li></>})
+                        }
                     </ul>
                 </div>
                 <span className='d-flex align-items-center' style={{'color': 'GrayText'}}>Status: </span>
@@ -82,9 +91,6 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
                         <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, is_completed: false})}>incomplete</li>
                     </ul>
                 </div>
-                <button className='btn btn-light btn-sm' onClick={clickHandler}>
-                    show
-                </button>
             </div>
         </>
     )
@@ -99,12 +105,15 @@ const SimpleTasksList = (props: {tasks: SimpleTask[]}) => {
                     !!props.tasks && props.tasks.map((task) => {
                         return (
                             <>
-                                <li key={task.pk} className='d-flex justify-content-between border rounded my-2 w-70 simple-task-item'>
+                                <li
+                                    key={task.pk}
+                                    className='d-flex justify-content-between border rounded my-2 w-70 simple-task-item'
+                                    >
                                     <p>{task.title}</p>
                                     <p>
                                         {
                                             !!task.due_date &&
-                                                task.due_date.toString()
+                                                (task.due_date instanceof Date) ? task.due_date.toLocaleDateString(undefined, options) : new Date(task.due_date).toLocaleDateString(undefined, options)
                                         }
                                     </p>
                                 </li>

@@ -5,7 +5,7 @@
 }
 
 ul .simple-task-item:hover {
-    background-color: green;
+    background-color: lightgrey;
     border-color: green;
     border-width: 2px;
     cursor: pointer;
