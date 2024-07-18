@@ -4,7 +4,7 @@ export interface SimpleTask {
     title: string
     description: string
     created_at: Date
-    due_date: Date
+    due_date: Date | string
     is_completed: boolean
 }
 

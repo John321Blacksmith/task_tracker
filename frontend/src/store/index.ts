@@ -1,9 +1,11 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { tasksApi } from './api_hooks/tasks_app';
+import modalState from './reducers';
 
 
 const rootReducer = combineReducers({
     [tasksApi.reducerPath]: tasksApi.reducer,
+    taskModal: modalState
 })
 
 
