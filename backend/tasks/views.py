@@ -28,7 +28,6 @@ class SimpleTaskViewSet(ModelViewSet):
         'is_completed'
     ]
     
-    print(queryset)
     
 
 
