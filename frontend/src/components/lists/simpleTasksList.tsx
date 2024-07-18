@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { SimpleTask } from '../../models/app_content';
+import Button from 'react-bootstrap/Button';
 import { STasksFilterQuery } from '../../models/queryModels';
 import { useLazyGetTasksQuery } from '../../store/api_hooks/tasks_app';
 import './styles/simpleTasksList.css';
+import { ButtonGroup } from 'react-bootstrap';
 
 
 const options: Intl.DateTimeFormatOptions = {
@@ -41,11 +42,10 @@ export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
     return (
         <>
             <div className='position-relative d-flex flex-column simple-tasks-container'>
-                <div className='simple-tasks-list'>
-                    <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
-                </div>
+                <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
                 {!!sTasks && <SimpleTasksList tasks={sTasks}/>}
-                <button className='btn btn-primary d-flex align-self-center'>+ Add</button>
+                <Button className='d-flex justify-content-center align-self-center position-sticky' variant='outline-dark'>+ Add</Button>
+                
             </div>
         </>
     )
@@ -100,14 +100,14 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
 const SimpleTasksList = (props: {tasks: SimpleTask[]}) => {
     return (
         <>
-            <ul>
+            <ul className='list-group simple-tasks-list'>
                 {
                     !!props.tasks && props.tasks.map((task) => {
                         return (
                             <>
                                 <li
                                     key={task.pk}
-                                    className='d-flex justify-content-between border rounded my-2 w-70 simple-task-item'
+                                    className='d-flex justify-content-between border rounded my-2 w-70 list-group-item simple-task-item'
                                     >
                                     <p>{task.title}</p>
                                     <p>
