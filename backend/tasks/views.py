@@ -24,6 +24,7 @@ class SimpleTaskViewSet(ModelViewSet):
     filterset_fields = [
         'title',
         'due_date',
+        'category',
         'priority',
         'is_completed'
     ]
