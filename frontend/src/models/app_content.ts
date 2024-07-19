@@ -1,6 +1,6 @@
 export interface SimpleTask {
     pk: string
-    category_id: string
+    category: string
     title: string
     description: string
     created_at: Date
@@ -10,4 +10,13 @@ export interface SimpleTask {
 
 export interface TasksResponse {
     results: SimpleTask[]
+}
+
+
+export interface SimpleTaskForm {
+    category?: string
+    title?: string
+    description?: string 
+    due_date: Date | string
+    is_completed?: boolean 
 }

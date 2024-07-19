@@ -1,13 +1,20 @@
 import { combineReducers, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SimpleTask } from '../models/app_content';
+import { SimpleTaskForm } from '../models/app_content';
 
 
 // simple task modal init state
 const sTaskModalInitState: {
     show: boolean
-    task?: SimpleTask
+    task: SimpleTaskForm
 } = {
-    show: false
+    show: false,
+    task: {
+        title: '',
+        description: '',
+        due_date: '',
+        category: '',
+        is_completed: false
+    }
 }
 
 const modalSlice = createSlice({
@@ -17,8 +24,8 @@ const modalSlice = createSlice({
         checkTask: (_, action: PayloadAction<typeof sTaskModalInitState>) => {
             return action.payload
         },
-        closeTask: (state) => {
-            state.show = false
+        closeTask: (_) => {
+            return sTaskModalInitState
         }
     }
 })

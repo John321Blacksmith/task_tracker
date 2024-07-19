@@ -59,7 +59,7 @@ export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
 const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.Dispatch<React.SetStateAction<STasksFilterQuery>>, queryHook: Function}) => {
 
     useEffect(() => {
-        if (props.param) {
+        if (props.param.is_completed !== '' || props.param.priority !== '') {
         props.queryHook({body: props.param, method: 'GET'})
         }
     }, [props.param, props.paramSetter])

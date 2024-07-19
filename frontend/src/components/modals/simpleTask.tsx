@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { RootState } from '../../store/index';
 import { closeTask } from '../../store/reducers'; 
-import { SimpleTask } from '../../models/app_content';
+import { SimpleTaskForm } from '../../models/app_content';
 
 
 export default function SimpleTaskModal () {
@@ -12,12 +12,21 @@ export default function SimpleTaskModal () {
     // simple task details
     const dispatch = useDispatch()
     const state = useSelector((state: RootState) => state.taskModal.modalState)
-    const [formData, setData] = useState<SimpleTask>({title: state.task?.title, description: state.task?.description, due_date: state.task?.due_date, is_completed: state.task?.is_completed})
+    const [input, setInput] = useState<SimpleTaskForm>({title: '', 
+                                                        description: '', 
+                                                        due_date: '', 
+                                                        category: '', 
+                                                        is_completed: false})
     const options: Intl.DateTimeFormatOptions = {'weekday': 'long', 'day': 'numeric', 'month': 'long'}
+
+    useEffect(()=> {
+        if (state.task?.due_date) {
+            console.log(new Date(state.task.due_date).toISOString())
+        }
+    }, [state.task.due_date])
     return (
         <>
-            {
-                !!state.task &&
+            
                     <Modal show={state.show} onHide={() => dispatch(closeTask())}>
                         <Modal.Header>{state.task.title}</Modal.Header>
                         <Modal.Body>
@@ -35,15 +44,17 @@ export default function SimpleTaskModal () {
                                     <Form.Control
                                         type='date'
                                         value={
-                                            state.task.due_date instanceof Date ?
-                                                state.task.due_date.toLocaleDateString(undefined, options) :
-                                                new Date(state.task.due_date).toLocaleDateString(undefined, options)
-                                            }/>
+                                                (state.task?.due_date instanceof Date) ?
+                                                    state.task.due_date?.toLocaleDateString('en-GB', options):
+                                                    new Date(state.task?.due_date).toLocaleDateString('en-GB', options)
+                                        }
+                                        onChange={(ev)=> setInput(inp => ({...inp, due_date: ev.target.value}))}
+                                        />
                                 </Form.Group>
                             </Form>
                         </Modal.Body>
                     </Modal>
-            }
+            
        </>  
     )
 }
