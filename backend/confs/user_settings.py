@@ -13,8 +13,10 @@ load_dotenv(dotenv_path=env_path)
 SECRET_KEY = getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(getenv("DEBUG", default=0))
-ALLOWED_HOSTS = getenv("DJANGO_ALLOWED_HOSTS").split(" ")
+# ALLOWED_HOSTS = getenv("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+print(SECRET_KEY)
 if getenv("PROD") == "false":
     DATABASES = {
         'default': {
