@@ -7,6 +7,7 @@ import { STasksFilterQuery } from '../../models/queryModels';
 import { useLazyGetTasksQuery } from '../../store/api_hooks/tasks_app';
 import { checkTask } from '../../store/reducers';
 import SimpleTaskModal from '../modals/simpleTask';
+import SimpleTaskFormComponent from '../forms/simpleTaskForms';
 import './styles/simpleTasksList.css';
 
 
@@ -30,6 +31,7 @@ const ContentSpinner = () => {
 export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
     // Block of tasks list and filter parameters
     const [sTasks, setSTasks] = useState<SimpleTask[]>(props.tasks)
+    const [show, setShow] = useState<boolean>(false)
 
     const [filterParam, setFilterParam] = useState<STasksFilterQuery>({priority: '', is_completed: ''})
     
@@ -42,12 +44,16 @@ export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
     }, [sTasks, data, setSTasks])
 
     return (
-        <>
+        <>  
+            <SimpleTaskFormComponent show={show} setter={setShow}/>
             <SimpleTaskModal/>
             <div className='position-relative d-flex flex-column simple-tasks-container'>
                 <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
                 {!!sTasks && <SimpleTasksList tasks={sTasks}/>}
-                <Button className='d-flex justify-content-center align-self-center position-sticky' variant='outline-dark'>+ Add</Button>
+                <Button
+                    className='d-flex justify-content-center align-self-center position-sticky'
+                    variant='outline-dark'
+                    onClick={()=>setShow(true)}>+ Add</Button>
                 
             </div>
         </>
