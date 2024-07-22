@@ -13,7 +13,8 @@ const sTaskModalInitState: {
         description: '',
         due_date: '',
         category: '',
-        is_completed: false
+        is_completed: false,
+        priority: '',
     }
 }
 

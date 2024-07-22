@@ -7,7 +7,7 @@ import { STasksFilterQuery } from '../../models/queryModels';
 import { useLazyGetTasksQuery } from '../../store/api_hooks/tasks_app';
 import { checkTask } from '../../store/reducers';
 import SimpleTaskModal from '../modals/simpleTask';
-import SimpleTaskFormComponent from '../forms/simpleTaskForms';
+import SimpleTaskFormComponent from '../forms/simpleTaskForm';
 import './styles/simpleTasksList.css';
 
 
@@ -31,8 +31,17 @@ const ContentSpinner = () => {
 export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
     // Block of tasks list and filter parameters
     const [sTasks, setSTasks] = useState<SimpleTask[]>(props.tasks)
-    const [show, setShow] = useState<boolean>(false)
-
+    const [showForm, setShowForm] = useState<boolean>(false)
+    const [showModal, setShowModal] = useState<boolean>(false)
+    const [task, setTask] = useState<SimpleTask>({pk: '',
+                                                  category: '',
+                                                  title: '',
+                                                  description: '',
+                                                  created_at: '',
+                                                  due_date: '',
+                                                  is_completed: false,
+                                                  priority: '',})
+                                                  
     const [filterParam, setFilterParam] = useState<STasksFilterQuery>({priority: '', is_completed: ''})
     
     const [getFilteredTasks, {data, isLoading, isFetching, error}] = useLazyGetTasksQuery()
@@ -45,15 +54,15 @@ export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
 
     return (
         <>  
-            <SimpleTaskFormComponent show={show} setter={setShow}/>
-            <SimpleTaskModal/>
+            <SimpleTaskFormComponent show={showForm} setter={setShowForm}/>
+            <SimpleTaskModal show={showModal} setter={setShowModal}/>
             <div className='position-relative d-flex flex-column simple-tasks-container'>
                 <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
-                {!!sTasks && <SimpleTasksList tasks={sTasks}/>}
+                {!!sTasks && <SimpleTasksList tasks={sTasks} setter={}/>}
                 <Button
                     className='d-flex justify-content-center align-self-center position-sticky'
                     variant='outline-dark'
-                    onClick={()=>setShow(true)}>+ Add</Button>
+                    onClick={()=>setShowForm(true)}>+ Add</Button>
                 
             </div>
         </>
@@ -106,7 +115,7 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
 }
 
 
-const SimpleTasksList = (props: {tasks: SimpleTask[]}) => {
+const SimpleTasksList = (props: {tasks: SimpleTask[], setter: any}) => {
     const dispatch = useDispatch()
     return (
         <>

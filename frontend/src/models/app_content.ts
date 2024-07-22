@@ -5,7 +5,8 @@ export interface SimpleTask {
     description: string
     created_at: Date
     due_date: Date | string
-    is_completed: boolean
+    is_completed: boolean,
+    priority: string
 }
 
 export interface TasksResponse {
@@ -18,5 +19,6 @@ export interface SimpleTaskForm {
     title?: string
     description?: string 
     due_date: Date | string
-    is_completed?: boolean 
+    is_completed?: boolean
+    priority: string
 }
