@@ -1,8 +1,22 @@
 from rest_framework import serializers
 from .models import (
     SimpleTask, Project,
-    Sprint, SprintTask
+    Sprint, SprintTask,
+    Category
 )
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """
+    Category object JSON
+    representation.
+    """
+    class Meta:
+        model = Category
+        fields = [
+            'pk',
+            'title'
+        ]
 
 
 class SimpleTasksListSerializer(serializers.ModelSerializer):
@@ -13,6 +27,8 @@ class SimpleTasksListSerializer(serializers.ModelSerializer):
     """
     category = serializers.CharField(source='category.title', write_only=True)
     due_date = serializers.DateTimeField(format='%Y-%m-%d')
+    categories = CategorySerializer(Category.objects.all(), many=True)
+
     class Meta:
         model = SimpleTask
         fields = [
@@ -24,8 +40,9 @@ class SimpleTasksListSerializer(serializers.ModelSerializer):
             'due_date',
             'is_completed',
             'priority',
+            'categories'
         ]
-        
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     """
