@@ -1,6 +1,3 @@
-import '../global/styles/navBar.css';
- 
-
 export function AppNavBar () {
   return (
     <>

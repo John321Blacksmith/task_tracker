@@ -3,50 +3,58 @@ import { useSelector, useDispatch } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { RootState } from '../../store/index';
-import { closeTask } from '../../store/reducers'; 
-import { SimpleTaskForm } from '../../models/app_content';
+import { closeTask } from '../../store/reducers';
+import { ICategory, SimpleTaskForm } from '../../models/app_content';
 import PriorityDropdown from '../global/dropdown';
 
 
-export default function SimpleTaskModal (props: {show: boolean, task: SimpleTaskForm, setter: any}) {
+export default function SimpleTaskModal (props: {categories: ICategory[]}) {
     // A modal which represents
     // simple task details
     const dispatch = useDispatch()
-    // const props.= useSelector((state: RootState) => state.taskModal.modalState)
+    const state = useSelector((state: RootState) => state.taskModal.modalState)
     const [input, setInput] = useState<SimpleTaskForm>({
-                                                        title: props.task.title, 
-                                                        description: props.task.description, 
-                                                        due_date: props.task.due_date, 
-                                                        category: props.task.category, 
+                                                        title: '', 
+                                                        description: '', 
+                                                        due_date: '', 
+                                                        category: '',
                                                         is_completed: false,
-                                                        priority: props.task.priority})
-
-    useEffect(()=> {
-        if (input) {
-            console.log(input)
+                                                        priority: ''})
+    
+    useEffect(() => {
+        if (state.task) {
+            setInput({
+                title: state.task.title, 
+                description: state.task.description, 
+                due_date: state.task.due_date, 
+                category: state.task.category, 
+                is_completed: false,
+                priority: state.task.priority})
         }
-    }, [input])
+    }, [state.task])
 
     return (
         <>
-            <Modal show={props.show} onHide={() => dispatch(closeTask())}>
-                <Modal.Header>{props.task.title}</Modal.Header>
+            <Modal show={state.show} onHide={() => dispatch(closeTask())}>
+                <Modal.Header className='d-flex flex-column justify-content-between align-items-end'>
+                    <div className='d-flex'>
+                        <PriorityDropdown choice={input.priority} setter={setInput}/>
+                    </div>
+                </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group>
-                            <Form.Label>Title</Form.Label>
-                            <Form.Control value={props.task.title} onChange={(ev) => setInput(inp => ({...inp, title: ev.target.value}))}/>
+                        <Form.Group className='mx-auto mt-2'>
+                            <Form.Control id='title' value={input.title} onChange={(ev) => setInput(inp => ({...inp, title: ev.target.value}))}/>
                         </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Description</Form.Label>
-                            <Form.Control value={props.task.description} onChange={(ev) => setInput(inp => ({...inp, description: ev.target.value}))}/>
+                        <Form.Group className='mx-auto mt-2'>
+                            <Form.Control id='description' as='textarea' value={input.description} onChange={(ev) => setInput(inp => ({...inp, description: ev.target.value}))}/>
                         </Form.Group>
 
                            {
-                                !!props.task.due_date ?
-                                    <Form.Group>
-                                        <Form.Label>Due date</Form.Label>
+                                !!state.task.due_date ?
+                                    <Form.Group className='mx-auto mt-2'>
                                         <Form.Control
+                                            id='due_date'
                                             type='date'
                                             value={
                                                     input.due_date.toString().substring(0, 10)
@@ -56,11 +64,30 @@ export default function SimpleTaskModal (props: {show: boolean, task: SimpleTask
                                     </Form.Group> :
                                     <button className='btn btn-light'>Set Due Date</button>
                             }
-                        <Form.Group>
-                            <PriorityDropdown choice={input.priority} setter={setInput}/>
+                        <Form.Group id='category'>
+                            <Form.Label>Category</Form.Label>
+                            <Form.Control list='simple-task-categories' onChange={(ev) => setInput((inp) => ({...inp, category: ev.target.value}))}/>
+                            <datalist id='simple-task-categories'>
+                                {
+                                    !!props.categories &&
+                                        props.categories.map((cat) => {
+                                            return (
+                                                <>
+                                                    <option key={cat.pk} value={cat.pk}>{cat.title}</option>
+                                                </>
+                                            )
+                                        })
+                                }
+                            </datalist>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <div className='d-flex justify-content-between btn-group'>
+                        <button className='d-flex justify-content-center btn btn-danger mx-3 rounded option-btn'>Cancel</button>
+                        <button className='d-flex justify-content-center btn btn-success mx-3 rounded option-btn'>Save</button>
+                    </div>
+                </Modal.Footer>
             </Modal>
        </>  
     )

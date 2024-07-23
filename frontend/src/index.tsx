@@ -7,6 +7,14 @@ import App from './App';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import './styles/misc/navBar.css';
+import './styles/misc/menuBar.css';
+import './styles/buttons.css';
+import './styles/forms.css';
+import './styles/lists.css';
+
+
+
 
 
 const root = ReactDOM.createRoot(

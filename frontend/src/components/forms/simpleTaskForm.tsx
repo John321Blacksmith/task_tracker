@@ -1,14 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import { SimpleTaskForm } from '../../models/app_content';
+import { ICategory, SimpleTaskForm } from '../../models/app_content';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import {useCreateTaskMutation} from '../../store/api_hooks/tasks_app';
 import PriorityDropdown from '../global/dropdown';
 
 
-export default function SimpleTaskFormComponent (props: {show: boolean, setter: any}){
+export default function SimpleTaskFormComponent (props: {categories: ICategory[], show: boolean, setter: any}){
 	const [input, setInput] = useState<SimpleTaskForm>({title: '', description: '', due_date: '', priority: ''})
 	const [createTask, {data, error}] = useCreateTaskMutation()
+
+	useEffect(()=> {
+		if (props.show === false) {
+			setInput({title: '', description: '', due_date: '', priority: ''})
+		}
+	}, [props.show])
 
 	const createTaskHandler = () => {
 		if (input) {
@@ -39,13 +45,41 @@ export default function SimpleTaskFormComponent (props: {show: boolean, setter: 
 							<Form.Group>
 								<PriorityDropdown choice={input.priority} setter={setInput}/>
 							</Form.Group>
+							<Form.Group>
+								<Form.Label>Category</Form.Label>
+								<CategoryList categories={props.categories} setter={setInput}/>
+							</Form.Group>
 						</Form>
 					</Modal.Body>
-					<div className='btn-group'>
-						<button className='btn btn-primary' onClick={()=> props.setter(false)}>Cancel</button>
-						<button className='btn btn-primary' onClick={createTaskHandler}>Create</button>
-					</div>
+					<Modal.Footer>
+						<div className='d-flex justify-content-between btn-group'>
+							<button className='d-flex justify-content-center btn btn-danger mx-3 rounded option-btn' onClick={()=> props.setter(false)}>Cancel</button>
+							<button className='d-flex justify-content-center btn btn-success mx-3 rounded option-btn' onClick={createTaskHandler}>Create</button>
+						</div>
+					</Modal.Footer>
 				</Modal>
 			</>
 		)
+}
+
+
+const CategoryList = (props: {categories: ICategory[], setter: React.Dispatch<React.SetStateAction<SimpleTaskForm>>}) => {
+
+	return (
+		<>
+			<Form.Control list='simple-task-categories' onChange={(ev) => props.setter((inp) => ({...inp, category: ev.target.value}))}/>
+				<datalist id='simple-task-categories'>
+					{
+						!!props.categories &&
+							props.categories.map((cat) => {
+								return (
+									<>
+										<option key={cat.pk} value={cat.pk}>{cat.title}</option>
+									</>
+								)
+							})
+					}
+				</datalist>
+		</>
+	)
 }

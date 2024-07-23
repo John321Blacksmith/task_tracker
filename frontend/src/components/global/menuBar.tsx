@@ -1,6 +1,3 @@
-import './styles/menuBar.css';
-
-
 export default function AppMenu() {
 
   return (

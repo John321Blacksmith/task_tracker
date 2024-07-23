@@ -12,7 +12,7 @@ export default function MainPage() {
     
     return (
         <>
-            {!!data && <SimpleTasksList tasks={data}/>}
+            {!!data && <SimpleTasksList categories={data} tasks={data}/>}
         </>
     )
 }

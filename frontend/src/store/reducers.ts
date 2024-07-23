@@ -1,18 +1,20 @@
 import { combineReducers, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SimpleTaskForm } from '../models/app_content';
+import { SimpleTaskForm, ISimpleTask } from '../models/app_content';
 
 
 // simple task modal init state
 const sTaskModalInitState: {
     show: boolean
-    task: SimpleTaskForm
+    task: ISimpleTask
 } = {
     show: false,
     task: {
+        pk: '',
         title: '',
         description: '',
         due_date: '',
         category: '',
+        created_at: '',
         is_completed: false,
         priority: '',
     }

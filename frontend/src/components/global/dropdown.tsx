@@ -1,17 +1,31 @@
+import {useState, useEffect} from 'react';
 import {SimpleTaskForm} from '../../models/app_content';
 
 
 export default function PriorityDropdown(props: {choice: string, setter: React.Dispatch<React.SetStateAction<SimpleTaskForm>>}) {
+    const [choiceColor, setColor] = useState<string>('')
+
+    useEffect(()=> {
+        if (props.choice === 'high'){
+            setColor('red')
+        } else if (props.choice === 'moderate') {
+            setColor('orange')
+        } else if (props.choice === 'minor') {
+            setColor('green')
+        }
+    }, [props.choice, choiceColor])
+
     return (
         <>
             <div className='d-flex justify-content-end filter-dropdowns'>
                 <span className='d-flex align-items-center' style={{'color': 'GrayText'}}>Priority: </span>
                 <div className='dropdown'>
                     <a href="#"
-                        className="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle"
+                        className="d-flex align-items-center justify-content-center p-3 text-decoration-none dropdown-toggle"
                         id="dropdownFilter"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false">{props.choice === '' ? 'all' : props.choice}</a>
+                        style={{"color": choiceColor}}
+                        aria-expanded="false">{props.choice}</a>
 
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
                     {
