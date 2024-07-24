@@ -4,7 +4,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { ICategory, ISimpleTask } from '../../models/app_content';
 import Button from 'react-bootstrap/Button';
 import { STasksFilterQuery } from '../../models/queryModels';
-import { useLazyGetTasksQuery } from '../../store/api_hooks/tasks_app';
+import { useLazyGetTasksQuery } from '../../store/api/api_init';
 import { checkTask } from '../../store/reducers';
 import SimpleTaskModal from '../modals/simpleTask';
 import SimpleTaskFormComponent from '../forms/simpleTaskForm';
@@ -20,18 +20,19 @@ const options: Intl.DateTimeFormatOptions = {
 
 export default function SimpleTasksComponent(props: {categories: ICategory[], tasks: ISimpleTask[]}) {
     // Block of tasks list and filter parameters
-    const [sTasks, setSTasks] = useState<ISimpleTask[]>(props.tasks)
+    const [sTasks, setSTasks] = useState<ISimpleTask[]>([])
     const [showForm, setShowForm] = useState<boolean>(false)
                                                   
     const [filterParam, setFilterParam] = useState<STasksFilterQuery>({priority: '', is_completed: ''})
     
     const [getFilteredTasks, {data, isLoading, isFetching, error}] = useLazyGetTasksQuery()
 
-    useEffect(() => {
-        if (data) {
-            setSTasks(data)
+    useEffect(()=> {
+        if (props.tasks) {
+            setSTasks(props.tasks)
         }
-    }, [sTasks, data, setSTasks])
+    }, [props.tasks])
+
 
     return (
         <>  

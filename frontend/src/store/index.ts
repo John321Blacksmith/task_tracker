@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { tasksApi } from './api_hooks/tasks_app';
+import { tasksApi } from './api/api_init';
 import modalState from './reducers';
 
 

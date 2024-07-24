@@ -15,8 +15,9 @@ export interface ISimpleTask {
     priority: string
 }
 
-export interface TasksResponse {
-    results: ISimpleTask[]
+export interface SimpleTasksResponse {
+    categories: ICategory[]
+    tasks: ISimpleTask[]
 }
 
 
