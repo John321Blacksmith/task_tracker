@@ -27,7 +27,6 @@ class SimpleTasksListSerializer(serializers.ModelSerializer):
     """
     category = serializers.CharField(source='category.title', write_only=True)
     due_date = serializers.DateTimeField(format='%Y-%m-%d')
-    categories = CategorySerializer(Category.objects.all(), many=True)
 
     class Meta:
         model = SimpleTask
@@ -40,7 +39,6 @@ class SimpleTasksListSerializer(serializers.ModelSerializer):
             'due_date',
             'is_completed',
             'priority',
-            'categories'
         ]
 
 
