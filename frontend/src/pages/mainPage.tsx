@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { ICategory, ISimpleTask } from '../models/app_content';
-import { useGetTasksQuery } from '../store/api/api_init';
+import { useGetSimpleTasksQuery } from '../store/api/hooks';
 import SimpleTasksList from '../components/lists/simpleTasksList';
 
 
@@ -9,7 +9,7 @@ export default function MainPage() {
     // a start page for the user
     // so he can do some stuff
     // over his tasks or projects
-    const {data, error} = useGetTasksQuery({ body: { priority: '', is_completed: '' }, method: 'GET' })
+    const {data, error} = useGetSimpleTasksQuery()
     const [sTasksData, setData] = useState<ISimpleTask[]>([])
 
     const [ready, setReady] = useState<boolean>(false)
