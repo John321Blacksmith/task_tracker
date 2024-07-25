@@ -1,24 +1,37 @@
 import React, {useState, useEffect} from 'react';
-import { ICategory, SimpleTaskForm } from '../../models/app_content';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-import {useCreateTaskMutation} from '../../store/api/api_init';
+
+import {usePostSimpleTasksMutation} from '../../store/api/hooks';
+import { PostSimpleTasksApiArg, SimpleTasksList } from '../../store/api/hooks';
 import PriorityDropdown from '../global/dropdown';
 
 
-export default function SimpleTaskFormComponent (props: {categories: ICategory[], show: boolean, setter: any}){
-	const [input, setInput] = useState<SimpleTaskForm>({title: '', description: '', due_date: '', priority: ''})
-	const [createTask, {data, error}] = useCreateTaskMutation()
+export default function SimpleTaskFormComponent (props: {categories: {pk: number, title: string}[], show: boolean, setter: any}){
+	const [input, setInput] = useState<SimpleTasksList>({title: '',
+														 description: '',
+														 category: {pk: 0, title: ''},
+														 due_date: '',
+														 is_completed: false,
+														 priority: 'minor'})
+	const [createTask, {data, error}] = usePostSimpleTasksMutation()
 
 	useEffect(()=> {
 		if (props.show === false) {
-			setInput({title: '', description: '', due_date: '', priority: ''})
+			setInput({
+				title: '',
+				description: '',
+				category: {pk: 0, title: ''},
+				due_date: '',
+				is_completed: false,
+				priority: 'minor'
+			})
 		}
 	}, [props.show])
 
 	const createTaskHandler = () => {
 		if (input) {
-			createTask({body: input, method: 'POST'})
+			createTask({simpleTasksList: input})
 		} else if (error) {
 			return <><div><p>Invalid data</p></div></>
 		}
@@ -63,18 +76,18 @@ export default function SimpleTaskFormComponent (props: {categories: ICategory[]
 }
 
 
-const CategoryList = (props: {categories: ICategory[], setter: React.Dispatch<React.SetStateAction<SimpleTaskForm>>}) => {
+const CategoryList = (props: {categories: {pk: number, title: string}[], setter: React.Dispatch<React.SetStateAction<SimpleTasksList>>}) => {
 
 	return (
 		<>
-			<Form.Control list='simple-task-categories' onChange={(ev) => props.setter((inp) => ({...inp, category: ev.target.value}))}/>
+			<Form.Control list='simple-task-categories' onChange={(ev) => props.setter((inp) => ({...inp, category: {pk: 0, title: ev.target.value}}))}/>
 				<datalist id='simple-task-categories'>
 					{
 						!!props.categories &&
 							props.categories.map((cat) => {
 								return (
 									<>
-										<option key={cat.pk} value={cat.pk}>{cat.title}</option>
+										<option key={cat.pk} value={cat.title}/>
 									</>
 								)
 							})

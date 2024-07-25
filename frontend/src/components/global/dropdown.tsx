@@ -1,8 +1,9 @@
 import {useState, useEffect} from 'react';
 import {SimpleTaskForm} from '../../models/app_content';
+import { SimpleTasksList } from '../../store/api/hooks';
 
 
-export default function PriorityDropdown(props: {choice: string, setter: React.Dispatch<React.SetStateAction<SimpleTaskForm>>}) {
+export default function PriorityDropdown(props: {choice: string, setter: React.Dispatch<React.SetStateAction<SimpleTasksList>>}) {
     const [choiceColor, setColor] = useState<string>('')
 
     useEffect(()=> {

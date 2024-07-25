@@ -4,10 +4,11 @@ import Spinner from 'react-bootstrap/Spinner';
 import { ICategory, ISimpleTask } from '../../models/app_content';
 import Button from 'react-bootstrap/Button';
 import { STasksFilterQuery } from '../../models/queryModels';
-import { useLazyGetTasksQuery } from '../../store/api/api_init';
+import { SimpleTasksList, useLazyGetSimpleTasksQuery } from '../../store/api/hooks';
 import { checkTask } from '../../store/reducers';
 import SimpleTaskModal from '../modals/simpleTask';
 import SimpleTaskFormComponent from '../forms/simpleTaskForm';
+import { SimpleTasksListRead } from '../../store/api/hooks';
 
 
 const options: Intl.DateTimeFormatOptions = {
@@ -18,14 +19,14 @@ const options: Intl.DateTimeFormatOptions = {
 }
 
 
-export default function SimpleTasksComponent(props: {categories: ICategory[], tasks: ISimpleTask[]}) {
+export default function SimpleTasksComponent(props: {categories: {pk: number, title: string}[], tasks: SimpleTasksListRead[]}) {
     // Block of tasks list and filter parameters
-    const [sTasks, setSTasks] = useState<ISimpleTask[]>([])
+    const [sTasks, setSTasks] = useState<SimpleTasksListRead[]>([])
     const [showForm, setShowForm] = useState<boolean>(false)
                                                   
     const [filterParam, setFilterParam] = useState<STasksFilterQuery>({priority: '', is_completed: ''})
     
-    const [getFilteredTasks, {data, isLoading, isFetching, error}] = useLazyGetTasksQuery()
+    const [getFilteredTasks, {data, isLoading, isFetching, error}] = useLazyGetSimpleTasksQuery()
 
     useEffect(()=> {
         if (props.tasks) {
@@ -36,16 +37,15 @@ export default function SimpleTasksComponent(props: {categories: ICategory[], ta
 
     return (
         <>  
-            <SimpleTaskFormComponent show={showForm} categories={props.categories} setter={setShowForm}/>
-            <SimpleTaskModal categories={props.categories}/>
+            <SimpleTaskFormComponent categories={props.categories} show={showForm} setter={setShowForm}/>
+            {!!props.categories && <SimpleTaskModal categories={props.categories}/>}
             <div className='position-relative d-flex flex-column simple-tasks-container'>
                 <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
-                {!!sTasks && <SimpleTasksList tasks={sTasks}/>}
+                {!!sTasks && <SimpleTasksListComponent tasks={sTasks}/>}
                 <Button
                     className='d-flex justify-content-center align-self-center position-sticky'
                     variant='outline-dark'
                     onClick={()=>setShowForm(true)}>+ Add</Button>
-                
             </div>
         </>
     )
@@ -97,7 +97,7 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
 }
 
 
-const SimpleTasksList = (props: {tasks: ISimpleTask[]}) => {
+const SimpleTasksListComponent = (props: {tasks: SimpleTasksListRead[]}) => {
     const dispatch = useDispatch()
     return (
         <>
@@ -107,17 +107,12 @@ const SimpleTasksList = (props: {tasks: ISimpleTask[]}) => {
                         return (
                             <>
                                 <li
-                                    key={task.pk}
+                                    key={task.id}
                                     className='d-flex justify-content-between border rounded my-2 w-70 list-group-item simple-task-item'
-                                    onClick={() => dispatch(checkTask({show: true, task: task}))}
+                                    onClick={() => dispatch(checkTask({show: true, task: {...task, category: {pk: task.category.pk, title: task.category.title}}}))}
                                     >
                                     <p>{task.title}</p>
-                                    <p>
-                                        {
-                                            !!task.due_date &&
-                                                (task.due_date instanceof Date) ? task.due_date.toLocaleDateString(undefined, options) : new Date(task.due_date).toLocaleDateString(undefined, options)
-                                        }
-                                    </p>
+                                    <p>{task.due_date}</p>
                                 </li>
                             </>
                         )

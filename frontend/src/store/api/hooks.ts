@@ -58,7 +58,7 @@ const injectedRtkApi = api.injectEndpoints({
       GetSimpleTasksApiArg
     >({
       query: (queryArg) => ({
-        url: `/simple-tasks/`,
+        url: `/tasks/simple-tasks/`,
         params: {
           title: queryArg.title,
           due_date: queryArg.dueDate,
@@ -75,7 +75,7 @@ const injectedRtkApi = api.injectEndpoints({
       PostSimpleTasksApiArg
     >({
       query: (queryArg) => ({
-        url: `/simple-tasks/`,
+        url: `/tasks/simple-tasks/`,
         method: "POST",
         body: queryArg.simpleTasksList,
       }),
@@ -84,14 +84,14 @@ const injectedRtkApi = api.injectEndpoints({
       GetSimpleTasksByIdApiResponse,
       GetSimpleTasksByIdApiArg
     >({
-      query: (queryArg) => ({ url: `/simple-tasks/${queryArg.id}/` }),
+      query: (queryArg) => ({ url: `/tasks/simple-tasks/${queryArg.id}/` }),
     }),
     putSimpleTasksById: build.mutation<
       PutSimpleTasksByIdApiResponse,
       PutSimpleTasksByIdApiArg
     >({
       query: (queryArg) => ({
-        url: `/simple-tasks/${queryArg.id}/`,
+        url: `/tasks/simple-tasks/${queryArg.id}/`,
         method: "PUT",
         body: queryArg.simpleTasksList,
       }),
@@ -101,7 +101,7 @@ const injectedRtkApi = api.injectEndpoints({
       PatchSimpleTasksByIdApiArg
     >({
       query: (queryArg) => ({
-        url: `/simple-tasks/${queryArg.id}/`,
+        url: `/tasks/simple-tasks/${queryArg.id}/`,
         method: "PATCH",
         body: queryArg.simpleTasksList,
       }),
@@ -111,7 +111,7 @@ const injectedRtkApi = api.injectEndpoints({
       DeleteSimpleTasksByIdApiArg
     >({
       query: (queryArg) => ({
-        url: `/simple-tasks/${queryArg.id}/`,
+        url: `/tasks/simple-tasks/${queryArg.id}/`,
         method: "DELETE",
       }),
     }),
@@ -278,8 +278,14 @@ export type GetSimpleTasksApiResponse = /** status 200  */ {
   count: number;
   next?: string | null;
   previous?: string | null;
-  results: SimpleTasksListRead[];
+  results: sTasksDataset;
 };
+
+export type sTasksDataset = {
+  tasks:  SimpleTasksListRead[];
+  categories: {pk: number, title: string}[];
+};
+
 export type GetSimpleTasksApiArg = {
   /** title */
   title?: string;
@@ -425,17 +431,17 @@ export type ProjectRead = {
 };
 export type SimpleTasksList = {
   title: string;
-  description?: string | null;
-  category: string;
+  description?: string | number | string[];
+  category: {pk: number, title: string};
   due_date: string;
   is_completed?: boolean;
-  priority: "high" | "moderate" | "minor";
+  priority: "high" | "moderate" | "minor" | string;
 };
 export type SimpleTasksListRead = {
   id?: number;
   title: string;
-  description?: string | null;
-  category: string;
+  description?: string | number | string[] | undefined;
+  category: {pk: number, title: string};
   created_at?: string;
   due_date: string;
   is_completed?: boolean;

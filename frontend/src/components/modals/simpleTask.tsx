@@ -4,22 +4,22 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { RootState } from '../../store/index';
 import { closeTask } from '../../store/reducers';
-import { ICategory, SimpleTaskForm } from '../../models/app_content';
+import { SimpleTasksList } from '../../store/api/hooks';
 import PriorityDropdown from '../global/dropdown';
 
 
-export default function SimpleTaskModal (props: {categories: ICategory[]}) {
+export default function SimpleTaskModal (props:{categories: {pk: number, title: string}[]}) {
     // A modal which represents
     // simple task details
     const dispatch = useDispatch()
     const state = useSelector((state: RootState) => state.taskModal.modalState)
-    const [input, setInput] = useState<SimpleTaskForm>({
+    const [input, setInput] = useState<SimpleTasksList>({
                                                         title: '', 
                                                         description: '', 
                                                         due_date: '', 
-                                                        category: '',
+                                                        category: state.task.category,
                                                         is_completed: false,
-                                                        priority: ''})
+                                                        priority: 'minor'})
     
     useEffect(() => {
         if (state.task) {
@@ -32,6 +32,8 @@ export default function SimpleTaskModal (props: {categories: ICategory[]}) {
                 priority: state.task.priority})
         }
     }, [state.task])
+
+    useEffect(()=>{console.log(state.task.category)})
 
     return (
         <>
@@ -49,7 +51,6 @@ export default function SimpleTaskModal (props: {categories: ICategory[]}) {
                         <Form.Group className='mx-auto mt-2'>
                             <Form.Control id='description' as='textarea' value={input.description} onChange={(ev) => setInput(inp => ({...inp, description: ev.target.value}))}/>
                         </Form.Group>
-
                            {
                                 !!state.task.due_date ?
                                     <Form.Group className='mx-auto mt-2'>
@@ -66,14 +67,14 @@ export default function SimpleTaskModal (props: {categories: ICategory[]}) {
                             }
                         <Form.Group id='category'>
                             <Form.Label>Category</Form.Label>
-                            <Form.Control list='simple-task-categories' onChange={(ev) => setInput((inp) => ({...inp, category: ev.target.value}))}/>
+                            <Form.Control list='simple-task-categories' onChange={(ev) => setInput((inp) => ({...inp, category: {pk: 0, title: ev.target.value}}))}/>
                             <datalist id='simple-task-categories'>
                                 {
                                     !!props.categories &&
                                         props.categories.map((cat) => {
                                             return (
                                                 <>
-                                                    <option key={cat.pk} value={cat.pk}>{cat.title}</option>
+                                                    <option key={cat.pk} value={cat.title}/>
                                                 </>
                                             )
                                         })
