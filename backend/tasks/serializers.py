@@ -25,7 +25,7 @@ class SimpleTasksListSerializer(serializers.ModelSerializer):
     the fields of the task
     for list representation.
     """
-    category = serializers.CharField(source='category.title', write_only=True)
+    category = CategorySerializer(read_only=True)
     due_date = serializers.DateTimeField(format='%Y-%m-%d')
 
     class Meta:

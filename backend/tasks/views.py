@@ -55,6 +55,8 @@ class SimpleTaskViewSet(ModelViewSet):
         
         return Response(data={'tasks': tasks_serializer.data, 'categories': categories_serializer.data})
     
+    def create(self, request, *args, **kwargs):
+        serializer = ...
 
 class ProjectViewSet(ModelViewSet):
     """
