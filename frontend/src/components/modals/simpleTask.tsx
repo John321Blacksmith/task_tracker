@@ -2,13 +2,14 @@ import React, {useState, useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { RootState } from '../../store/index';
 import { closeTask } from '../../store/reducers';
 import { SimpleTasksList } from '../../store/api/hooks';
 import PriorityDropdown from '../global/dropdown';
 
 
-export default function SimpleTaskModal (props:{categories: {pk: number, title: string}[]}) {
+export default function SimpleTaskModal (props: {categories: string[]}) {
     // A modal which represents
     // simple task details
     const dispatch = useDispatch()
@@ -33,7 +34,7 @@ export default function SimpleTaskModal (props:{categories: {pk: number, title: 
         }
     }, [state.task])
 
-    useEffect(()=>{console.log(state.task.category)})
+    useEffect(()=>{console.log(input.category)}, [input])
 
     return (
         <>
@@ -67,19 +68,17 @@ export default function SimpleTaskModal (props:{categories: {pk: number, title: 
                             }
                         <Form.Group id='category'>
                             <Form.Label>Category</Form.Label>
-                            <Form.Control list='simple-task-categories' onChange={(ev) => setInput((inp) => ({...inp, category: {pk: 0, title: ev.target.value}}))}/>
-                            <datalist id='simple-task-categories'>
-                                {
-                                    !!props.categories &&
+                                <select onChange={(ev) => setInput((inp) => ({...inp, category: ev.target.value}))}>
+                                    {
                                         props.categories.map((cat) => {
                                             return (
                                                 <>
-                                                    <option key={cat.pk} value={cat.title}/>
+                                                    <option key={cat}></option>
                                                 </>
                                             )
                                         })
-                                }
-                            </datalist>
+                                    }
+                                </select>
                         </Form.Group>
                     </Form>
                 </Modal.Body>

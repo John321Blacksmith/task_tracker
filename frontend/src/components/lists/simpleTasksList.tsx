@@ -4,7 +4,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { ICategory, ISimpleTask } from '../../models/app_content';
 import Button from 'react-bootstrap/Button';
 import { STasksFilterQuery } from '../../models/queryModels';
-import { SimpleTasksList, useLazyGetSimpleTasksQuery } from '../../store/api/hooks';
+import { SimpleTasksList, useLazyGetSimpleTasksQuery, GetSimpleTasksApiArg } from '../../store/api/hooks';
 import { checkTask } from '../../store/reducers';
 import SimpleTaskModal from '../modals/simpleTask';
 import SimpleTaskFormComponent from '../forms/simpleTaskForm';
@@ -24,21 +24,21 @@ export default function SimpleTasksComponent(props: {categories: {pk: number, ti
     const [sTasks, setSTasks] = useState<SimpleTasksListRead[]>([])
     const [showForm, setShowForm] = useState<boolean>(false)
                                                   
-    const [filterParam, setFilterParam] = useState<STasksFilterQuery>({priority: '', is_completed: ''})
+    const [filterParam, setFilterParam] = useState<GetSimpleTasksApiArg>({priority: undefined, isCompleted: ''})
     
     const [getFilteredTasks, {data, isLoading, isFetching, error}] = useLazyGetSimpleTasksQuery()
-
+    
     useEffect(()=> {
-        if (props.tasks) {
-            setSTasks(props.tasks)
+        if (data) {
+            setSTasks(data.results.tasks)
         }
-    }, [props.tasks])
+    }, [data])
 
 
     return (
         <>  
             <SimpleTaskFormComponent categories={props.categories} show={showForm} setter={setShowForm}/>
-            {!!props.categories && <SimpleTaskModal categories={props.categories}/>}
+            <SimpleTaskModal categories={props.categories}/>
             <div className='position-relative d-flex flex-column simple-tasks-container'>
                 <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
                 {!!sTasks && <SimpleTasksListComponent tasks={sTasks}/>}
@@ -53,11 +53,11 @@ export default function SimpleTasksComponent(props: {categories: {pk: number, ti
 
 
 
-const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.Dispatch<React.SetStateAction<STasksFilterQuery>>, queryHook: Function}) => {
+const SimpleTasksFilter = (props: {param: GetSimpleTasksApiArg, paramSetter: React.Dispatch<React.SetStateAction<GetSimpleTasksApiArg>>, queryHook: Function}) => {
 
     useEffect(() => {
-        if (props.param.is_completed !== '' || props.param.priority !== '') {
-        props.queryHook({body: props.param, method: 'GET'})
+        if (props.param) {
+        props.queryHook(props.param)
         }
     }, [props.param, props.paramSetter])
 
@@ -67,12 +67,12 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
                 <span className='d-flex align-items-center' style={{'color': 'GrayText'}}>Priority: </span>
                 <div className='dropdown'>
                     <a href="#" className="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                        {props.param.priority === '' ? 'all' : props.param.priority}
+                        {props.param.priority === undefined ? 'all' : props.param.priority}
                     </a>
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
                         {
-                            ['', 'high', 'moderate', 'minor']
-                            .map((choice)=> {return <><li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: choice})}>{choice === '' ? 'all' : choice}</li></>})
+                            [undefined, 'high', 'moderate', 'minor']
+                            .map((choice)=> {return <><li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: choice})}>{choice === undefined ? 'all' : choice}</li></>})
                         }
                     </ul>
                 </div>
@@ -80,15 +80,15 @@ const SimpleTasksFilter = (props: {param: STasksFilterQuery, paramSetter: React.
                 <div className='dropdown'>
                     <a href="#" className="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
                         {
-                            (props.param.is_completed === true ? 'complete' : '') ||
-                            (props.param.is_completed === false ? 'incomplete' : '') ||
-                            (props.param.is_completed === '' ? 'all' : '')
+                            (props.param.isCompleted === 'true' ? 'complete' : '') ||
+                            (props.param.isCompleted === 'false' ? 'incomplete' : '') ||
+                            (props.param.isCompleted === '' ? 'all' : '')
                         }
                     </a>
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, is_completed: ''})}>all</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, is_completed: true})}>complete</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, is_completed: false})}>incomplete</li>
+                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, isCompleted: ''})}>all</li>
+                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, isCompleted: 'true'})}>complete</li>
+                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, isCompleted: 'false'})}>incomplete</li>
                     </ul>
                 </div>
             </div>

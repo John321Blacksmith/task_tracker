@@ -283,7 +283,7 @@ export type GetSimpleTasksApiResponse = /** status 200  */ {
 
 export type sTasksDataset = {
   tasks:  SimpleTasksListRead[];
-  categories: {pk: number, title: string}[];
+  categories: string[];
 };
 
 export type GetSimpleTasksApiArg = {
@@ -294,7 +294,7 @@ export type GetSimpleTasksApiArg = {
   /** category */
   category?: string;
   /** priority */
-  priority?: "high" | "moderate" | "minor";
+  priority?: "high" | "moderate" | "minor" | string;
   /** is_completed */
   isCompleted?: string;
   /** Number of results to return per page. */
@@ -432,7 +432,7 @@ export type ProjectRead = {
 export type SimpleTasksList = {
   title: string;
   description?: string | number | string[];
-  category: {pk: number, title: string};
+  category: string;
   due_date: string;
   is_completed?: boolean;
   priority: "high" | "moderate" | "minor" | string;
@@ -441,7 +441,7 @@ export type SimpleTasksListRead = {
   id?: number;
   title: string;
   description?: string | number | string[] | undefined;
-  category: {pk: number, title: string};
+  category: string;
   created_at?: string;
   due_date: string;
   is_completed?: boolean;
