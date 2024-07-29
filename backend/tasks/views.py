@@ -5,9 +5,9 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, SimpleTask, Project, Sprint, SprintTask
 from .serializers import (
-    SimpleTasksListSerializer, ProjectSerializer,
+    SimpleTaskSerializer, ProjectSerializer,
     SprintSerializer, SprintTaskSerializer,
-    CategorySerializer
+    CategorySerializer, SimpleTaskFormSerializer
 )
 
 # Create your views here.
@@ -19,7 +19,6 @@ class SimpleTaskViewSet(ModelViewSet):
     tasks.
     """
     queryset = SimpleTask.objects.all()
-    serializer_class = SimpleTasksListSerializer
     renderer_classes = [JSONRenderer]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
@@ -55,9 +54,13 @@ class SimpleTaskViewSet(ModelViewSet):
         
         return Response(data={'tasks': tasks_serializer.data, 'categories': categories_serializer.data})
     
-    def create(self, request, *args, **kwargs):
-        serializer = ...
-
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH', 'PUT']:
+            return SimpleTaskFormSerializer
+        else:
+            return SimpleTaskSerializer
+        
+    
 class ProjectViewSet(ModelViewSet):
     """
     This view facilitates
