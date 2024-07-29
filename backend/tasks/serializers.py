@@ -19,7 +19,7 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
 
 
-class SimpleTasksListSerializer(serializers.ModelSerializer):
+class SimpleTaskSerializer(serializers.ModelSerializer):
     """
     Prepare and serialize
     the fields of the task
@@ -36,6 +36,19 @@ class SimpleTasksListSerializer(serializers.ModelSerializer):
             'description',
             'category',
             'created_at',
+            'due_date',
+            'is_completed',
+            'priority',
+        ]
+
+
+class SimpleTaskFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimpleTask
+        fields = [
+            'title',
+            'description',
+            'category',
             'due_date',
             'is_completed',
             'priority',
