@@ -15,8 +15,6 @@ SECRET_KEY = getenv("SECRET_KEY")
 DEBUG = bool(getenv("DEBUG", default=0))
 # ALLOWED_HOSTS = getenv("DJANGO_ALLOWED_HOSTS").split(" ")
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
-print(SECRET_KEY)
 if getenv("PROD") == "false":
     DATABASES = {
         'default': {
