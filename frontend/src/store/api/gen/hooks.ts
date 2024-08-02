@@ -52,10 +52,10 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/projects/${queryArg.id}/`,
         method: "DELETE",
       }),
-    }),
+    }), 
     getSimpleTasks: build.query<
-      GetSimpleTasksApiResponse,
-      GetSimpleTasksApiArg
+      SimpleTasksResponse,
+      SimpleTaskArgs
     >({
       query: (queryArg) => ({
         url: `/tasks/simple-tasks/`,
@@ -77,7 +77,7 @@ const injectedRtkApi = api.injectEndpoints({
       query: (queryArg) => ({
         url: `/tasks/simple-tasks/`,
         method: "POST",
-        body: queryArg.simpleTasksList,
+        body: queryArg.simpleTaskFormData,
       }),
     }),
     getSimpleTasksById: build.query<
@@ -256,7 +256,7 @@ export type ProjectsReadApiResponse = /** status 200  */ ProjectRead;
 export type ProjectsReadApiArg = {
   /** A unique integer value identifying this Project. */
   id: number;
-};
+}; 
 export type ProjectsUpdateApiResponse = /** status 200  */ ProjectRead;
 export type ProjectsUpdateApiArg = {
   /** A unique integer value identifying this Project. */
@@ -274,7 +274,7 @@ export type ProjectsDeleteApiArg = {
   /** A unique integer value identifying this Project. */
   id: number;
 };
-export type GetSimpleTasksApiResponse = /** status 200  */ {
+export type SimpleTasksResponse = /** status 200  */ {
   count: number;
   next?: string | null;
   previous?: string | null;
@@ -282,11 +282,11 @@ export type GetSimpleTasksApiResponse = /** status 200  */ {
 };
 
 export type sTasksDataset = {
-  tasks:  SimpleTasksListRead[];
-  categories: string[];
+  tasks:  SimpleTask[];
+  categories: {pk: number | string , title: string}[];
 };
 
-export type GetSimpleTasksApiArg = {
+export type SimpleTaskArgs = {
   /** title */
   title?: string;
   /** due_date */
@@ -302,29 +302,29 @@ export type GetSimpleTasksApiArg = {
   /** The initial index from which to return the results. */
   offset?: number;
 };
-export type PostSimpleTasksApiResponse = /** status 201  */ SimpleTasksListRead;
+export type PostSimpleTasksApiResponse = /** status 201  */ SimpleTask;
 export type PostSimpleTasksApiArg = {
-  simpleTasksList: SimpleTasksList;
+  simpleTaskFormData: SimpleTaskForm;
 };
 export type GetSimpleTasksByIdApiResponse =
-  /** status 200  */ SimpleTasksListRead;
+  /** status 200  */ SimpleTask;
 export type GetSimpleTasksByIdApiArg = {
   /** A unique integer value identifying this Simple Tasks. */
   id: number;
 };
 export type PutSimpleTasksByIdApiResponse =
-  /** status 200  */ SimpleTasksListRead;
+  /** status 200  */ SimpleTask;
 export type PutSimpleTasksByIdApiArg = {
   /** A unique integer value identifying this Simple Tasks. */
   id: number;
-  simpleTasksList: SimpleTasksList;
+  simpleTasksList: SimpleTaskForm;
 };
 export type PatchSimpleTasksByIdApiResponse =
-  /** status 200  */ SimpleTasksListRead;
+  /** status 200  */ SimpleTask;
 export type PatchSimpleTasksByIdApiArg = {
   /** A unique integer value identifying this Simple Tasks. */
   id: number;
-  simpleTasksList: SimpleTasksList;
+  simpleTasksList: SimpleTaskForm;
 };
 export type DeleteSimpleTasksByIdApiResponse = unknown;
 export type DeleteSimpleTasksByIdApiArg = {
@@ -429,19 +429,19 @@ export type ProjectRead = {
   title: string;
   created_at?: string;
 };
-export type SimpleTasksList = {
+export type SimpleTaskForm = {
   title: string;
   description?: string | number | string[];
-  category: string;
+  category: number | string;
   due_date: string;
   is_completed?: boolean;
   priority: "high" | "moderate" | "minor" | string;
 };
-export type SimpleTasksListRead = {
+export type SimpleTask = {
   id?: number;
   title: string;
   description?: string | number | string[] | undefined;
-  category: string;
+  category: {pk: number, title: string};
   created_at?: string;
   due_date: string;
   is_completed?: boolean;

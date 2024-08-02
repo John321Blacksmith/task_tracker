@@ -1,47 +1,36 @@
 import React, {useState, useEffect} from 'react';
 import { useDispatch } from 'react-redux';
 import Spinner from 'react-bootstrap/Spinner';
-import { ICategory, ISimpleTask } from '../../models/app_content';
+import { ICategory, SimpleTask } from '../../models/app_content';
+import { useLazyGetFilteredTasksQuery } from '../../store/api/custom_api';
 import Button from 'react-bootstrap/Button';
-import { STasksFilterQuery } from '../../models/queryModels';
-import { SimpleTasksList, useLazyGetSimpleTasksQuery, GetSimpleTasksApiArg } from '../../store/api/hooks';
-import { checkTask } from '../../store/reducers';
+import { SimpleTaskArgs } from '../../models/queryModels';
 import SimpleTaskModal from '../modals/simpleTask';
 import SimpleTaskFormComponent from '../forms/simpleTaskForm';
-import { SimpleTasksListRead } from '../../store/api/hooks';
 
 
-const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-}
-
-
-export default function SimpleTasksComponent(props: {categories: {pk: number, title: string}[], tasks: SimpleTasksListRead[]}) {
+export default function SimpleTasksComponent(props: {tasks: SimpleTask[]}) {
     // Block of tasks list and filter parameters
-    const [sTasks, setSTasks] = useState<SimpleTasksListRead[]>([])
+    const [sTasks, setSTasks] = useState<SimpleTask[]>(props.tasks)
     const [showForm, setShowForm] = useState<boolean>(false)
-                                                  
-    const [filterParam, setFilterParam] = useState<GetSimpleTasksApiArg>({priority: undefined, isCompleted: ''})
-    
-    const [getFilteredTasks, {data, isLoading, isFetching, error}] = useLazyGetSimpleTasksQuery()
+    const [filterState, setFilterState] = useState<{active: boolean, params: SimpleTaskArgs}>({active: false, params: {dueDate: '', category: '', priority: '', is_completed: ''}})
+    const [modalState, showSimpleTaskModal] = useState<{show: boolean, id?: number | string}>({show: false, id: ''})
+    const [getFilteredTasks, {data: tasks, isLoading, isFetching, error: listErr}] = useLazyGetFilteredTasksQuery()
+    const [categories, setCategories] = useState<ICategory[]>([])
     
     useEffect(()=> {
-        if (data) {
-            setSTasks(data.results.tasks)
+        if (tasks) {
+            setSTasks(tasks.results)
         }
-    }, [data])
-
-
+    }, [tasks])
+                                                               
     return (
         <>  
-            <SimpleTaskFormComponent categories={props.categories} show={showForm} setter={setShowForm}/>
-            <SimpleTaskModal categories={props.categories}/>
+            <SimpleTaskFormComponent categories={categories} show={showForm} priority={filterState.params.priority} formSetter={setShowForm}/>
+            <SimpleTaskModal id={modalState.id} show={modalState.show} modalSetter={showSimpleTaskModal} categorySetter={setCategories}/>
             <div className='position-relative d-flex flex-column simple-tasks-container'>
-                <SimpleTasksFilter param={filterParam} paramSetter={setFilterParam} queryHook={getFilteredTasks}/>
-                {!!sTasks && <SimpleTasksListComponent tasks={sTasks}/>}
+                <SimpleTasksFilter filter={filterState} paramSetter={setFilterState} getFilteredTasks={getFilteredTasks}/>
+                {!!sTasks && <SimpleTasksListComponent modalSetter={showSimpleTaskModal} tasks={sTasks}/>}
                 <Button
                     className='d-flex justify-content-center align-self-center position-sticky'
                     variant='outline-dark'
@@ -52,14 +41,24 @@ export default function SimpleTasksComponent(props: {categories: {pk: number, ti
 }
 
 
-
-const SimpleTasksFilter = (props: {param: GetSimpleTasksApiArg, paramSetter: React.Dispatch<React.SetStateAction<GetSimpleTasksApiArg>>, queryHook: Function}) => {
+const SimpleTasksFilter = (props: {
+                                    filter: {active: boolean, params: SimpleTaskArgs},
+                                    paramSetter: React.Dispatch<React.SetStateAction<{active: boolean, params: SimpleTaskArgs}>>
+                                    getFilteredTasks: Function}) => {
 
     useEffect(() => {
-        if (props.param) {
-        props.queryHook(props.param)
+        if (props.filter.active) {
+            props.getFilteredTasks(props.filter.params)
         }
-    }, [props.param, props.paramSetter])
+    }, [props.filter.active, props.filter.params, props.paramSetter])
+    
+
+    useEffect(() => {
+        if (props.filter.params.is_completed !== '' || props.filter.params.priority !== '') {
+            props.paramSetter({active: true, params: props.filter.params})
+        }
+    }, [props.filter.params, props.filter.active])
+
 
     return (
         <>
@@ -67,12 +66,12 @@ const SimpleTasksFilter = (props: {param: GetSimpleTasksApiArg, paramSetter: Rea
                 <span className='d-flex align-items-center' style={{'color': 'GrayText'}}>Priority: </span>
                 <div className='dropdown'>
                     <a href="#" className="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                        {props.param.priority === undefined ? 'all' : props.param.priority}
+                        {props.filter.params.priority === '' ? 'all' : props.filter.params.priority}
                     </a>
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
                         {
-                            [undefined, 'high', 'moderate', 'minor']
-                            .map((choice)=> {return <><li className="dropdown-item" onClick={() => props.paramSetter({...props.param, priority: choice})}>{choice === undefined ? 'all' : choice}</li></>})
+                            ['', 'high', 'moderate', 'minor']
+                            .map((choice)=> {return <><li className="dropdown-item" onClick={() => props.paramSetter((inp) => ({...inp, params: {...props.filter.params, priority: choice}}))}>{choice === '' ? 'all' : choice}</li></>})
                         }
                     </ul>
                 </div>
@@ -80,15 +79,16 @@ const SimpleTasksFilter = (props: {param: GetSimpleTasksApiArg, paramSetter: Rea
                 <div className='dropdown'>
                     <a href="#" className="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
                         {
-                            (props.param.isCompleted === 'true' ? 'complete' : '') ||
-                            (props.param.isCompleted === 'false' ? 'incomplete' : '') ||
-                            (props.param.isCompleted === '' ? 'all' : '')
+                            (props.filter.params.is_completed === 'true' ? 'complete' : '') ||
+                            (props.filter.params.is_completed === 'false' ? 'incomplete' : '') ||
+                            (props.filter.params.is_completed === '' ? 'all' : '')
                         }
                     </a>
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, isCompleted: ''})}>all</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, isCompleted: 'true'})}>complete</li>
-                        <li className="dropdown-item" onClick={() => props.paramSetter({...props.param, isCompleted: 'false'})}>incomplete</li>
+                        {
+                            [['all', ''], ['complete', 'true'], ['incomplete', 'false']]
+                            .map((choice) => {return <><li className="dropdown-item" onClick={() => props.paramSetter((inp) => ({...inp, params: {...props.filter.params, is_completed: choice[1]}}))}>{choice[0]}</li></>})
+                        }
                     </ul>
                 </div>
             </div>
@@ -97,8 +97,7 @@ const SimpleTasksFilter = (props: {param: GetSimpleTasksApiArg, paramSetter: Rea
 }
 
 
-const SimpleTasksListComponent = (props: {tasks: SimpleTasksListRead[]}) => {
-    const dispatch = useDispatch()
+const SimpleTasksListComponent = (props: {modalSetter: React.Dispatch<React.SetStateAction<{show: boolean, id?: number | string}>>, tasks: SimpleTask[]}) => {
     return (
         <>
             <ul className='list-group simple-tasks-list'>
@@ -109,10 +108,18 @@ const SimpleTasksListComponent = (props: {tasks: SimpleTasksListRead[]}) => {
                                 <li
                                     key={task.id}
                                     className='d-flex justify-content-between border rounded my-2 w-70 list-group-item simple-task-item'
-                                    onClick={() => dispatch(checkTask({show: true, task: {...task, category: {pk: task.category.pk, title: task.category.title}}}))}
+                                    onClick={() => props.modalSetter({id: task.id, show: true})}
                                     >
                                     <p>{task.title}</p>
-                                    <p>{task.due_date}</p>
+                                    {
+                                        task.is_completed === false ? 
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill='orange' className="bi bi-lightning-fill" viewBox="0 0 16 16">
+                                                <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641z"/>
+                                            </svg> :
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" className="bi bi-check-lg" viewBox="0 0 16 16">
+                                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+                                            </svg>
+                                    }
                                 </li>
                             </>
                         )

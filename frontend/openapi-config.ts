@@ -4,9 +4,9 @@ import {ConfigFile} from '@rtk-query/codegen-openapi';
 
 const config: ConfigFile = {
     schemaFile: './api-scheme.json',
-    apiFile: './src/store/api/api_init.ts',
+    apiFile: './src/store/api/gen/api_init.ts',
     apiImport: 'tasksApi',
-    outputFile: './src/store/api/hooks.ts',
+    outputFile: './src/store/api/gen/new_hooks.ts',
     exportName: 'appApi',
     hooks: {
         queries: true,
@@ -17,3 +17,4 @@ const config: ConfigFile = {
 
 
 export default config
+// npx @rtk-query/codegen-openapi openapi-config.ts

@@ -4,44 +4,111 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { RootState } from '../../store/index';
-import { closeTask } from '../../store/reducers';
-import { SimpleTasksList } from '../../store/api/hooks';
 import PriorityDropdown from '../global/dropdown';
+import { ICategory, SimpleTaskForm } from '../../models/app_content';
+import { useLazyGetSimpleTaskByIdQuery, usePatchSimpleTaskMutation, useDeleteSimpleTaskMutation } from '../../store/api/custom_api'
 
 
-export default function SimpleTaskModal (props: {categories: string[]}) {
+export default function SimpleTaskModal (props: {
+                                                    id?: number | string,
+                                                    show: boolean,
+                                                    priority?: string,
+                                                    modalSetter: React.Dispatch<React.SetStateAction<{show: boolean, id?: number | string}>>,
+                                                    categorySetter: React.Dispatch<React.SetStateAction<ICategory[]>>
+    }) {
     // A modal which represents
     // simple task details
-    const dispatch = useDispatch()
-    const state = useSelector((state: RootState) => state.taskModal.modalState)
-    const [input, setInput] = useState<SimpleTasksList>({
-                                                        title: '', 
-                                                        description: '', 
-                                                        due_date: '', 
-                                                        category: state.task.category,
+    const [getSimpleTask, {data: task, error: objErr}] = useLazyGetSimpleTaskByIdQuery()
+    const [updateTask, {data: updatedTask, error: updErr}] = usePatchSimpleTaskMutation()
+    const [deleteTask, {status}] = useDeleteSimpleTaskMutation()
+    const [taskStyle, setStyle] = useState<{color: string, status: string}>({color: '', status: ''})
+    const [input, setInput] = useState<SimpleTaskForm>({
+                                                        title: '',
+                                                        description: '',
+                                                        due_date: '',
+                                                        category: '',
                                                         is_completed: false,
-                                                        priority: 'minor'})
+                                                        priority: props.priority})
     
-    useEffect(() => {
-        if (state.task) {
-            setInput({
-                title: state.task.title, 
-                description: state.task.description, 
-                due_date: state.task.due_date, 
-                category: state.task.category, 
-                is_completed: false,
-                priority: state.task.priority})
+    useEffect(()=> {
+        if (props.show){
+            getSimpleTask({id: props.id})
         }
-    }, [state.task])
+    }, [props.show])
 
-    useEffect(()=>{console.log(input.category)}, [input])
+    useEffect(() => {
+        if (task) {
+            setInput({
+                title: task.title,
+                description: task.description,
+                due_date: task.due_date,
+                category: task.category,
+                is_completed: task.is_completed,
+                priority: task.priority
+            })
+        }
+    }, [task])
+
+    // mutation events
+    // listening
+    useEffect(() => {
+        // success message
+        if (updatedTask && !updErr) {
+            console.log(updatedTask)
+        }
+    }, [updatedTask, updErr])
+
+    useEffect(()=> {
+        if (status) {
+            // success message
+            console.log(status.toString())
+        }
+    }, [status])
+
+    useEffect(()=>{
+        if (task?.categories) {
+            props.categorySetter(task.categories)
+        }
+    }, [task?.categories])
+
+    useEffect(() => {
+        if (task?.is_completed === false) {
+            setStyle({color: 'red', status: 'active'})
+        } else {
+            setStyle({color: 'green', status: 'inactive'})
+        }
+    }, [task?.is_completed])
+
+    const updateTaskHandler = () => {
+        if (input){
+            updateTask({id: props.id, body: input})
+            props.modalSetter({id: '', show: false})
+        }
+    }
+
+    const completeTask = () => {
+        updateTask({id: props.id, body: {...input, is_completed: true}})
+        props.modalSetter({id: '', show: false})
+    }
+
+    const deleteTaskHandler = (id?: number | string) => {
+        deleteTask({id: id})
+        props.modalSetter({id: '', show: false})
+    }
+
 
     return (
         <>
-            <Modal show={state.show} onHide={() => dispatch(closeTask())}>
+            <Modal show={props.show} onHide={() => props.modalSetter({id: '', show: false})}>
                 <Modal.Header className='d-flex flex-column justify-content-between align-items-end'>
+                    <div className='d-flex align-items-center'>
+                        <p className='d-flex mb-0 align-items-center' style={{'color': taskStyle.color}}>{taskStyle.status}</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill={taskStyle.color} className="d-flex align-items-center bi bi-dot" viewBox="0 0 16 16">
+                            <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                        </svg>
+                    </div>
                     <div className='d-flex'>
-                        <PriorityDropdown choice={input.priority} setter={setInput}/>
+                        <PriorityDropdown priority={input.priority} setter={setInput}/>
                     </div>
                 </Modal.Header>
                 <Modal.Body>
@@ -53,7 +120,7 @@ export default function SimpleTaskModal (props: {categories: string[]}) {
                             <Form.Control id='description' as='textarea' value={input.description} onChange={(ev) => setInput(inp => ({...inp, description: ev.target.value}))}/>
                         </Form.Group>
                            {
-                                !!state.task.due_date ?
+                                !!input.due_date ?
                                     <Form.Group className='mx-auto mt-2'>
                                         <Form.Control
                                             id='due_date'
@@ -68,12 +135,12 @@ export default function SimpleTaskModal (props: {categories: string[]}) {
                             }
                         <Form.Group id='category'>
                             <Form.Label>Category</Form.Label>
-                                <select onChange={(ev) => setInput((inp) => ({...inp, category: ev.target.value}))}>
+                                <select value={input.category} onChange={(ev) => setInput((inp) => ({...inp, category: ev.target.value}))}>
                                     {
-                                        props.categories.map((cat) => {
+                                        task?.categories?.map((cat) => {
                                             return (
                                                 <>
-                                                    <option key={cat}></option>
+                                                    <option key={cat.id} value={cat.id}>{cat.title}</option>
                                                 </>
                                             )
                                         })
@@ -84,8 +151,11 @@ export default function SimpleTaskModal (props: {categories: string[]}) {
                 </Modal.Body>
                 <Modal.Footer>
                     <div className='d-flex justify-content-between btn-group'>
-                        <button className='d-flex justify-content-center btn btn-danger mx-3 rounded option-btn'>Cancel</button>
-                        <button className='d-flex justify-content-center btn btn-success mx-3 rounded option-btn'>Save</button>
+                        <button className='btn btn-primary' onClick={() => deleteTaskHandler(props.id)}>Delete</button>
+                        <button className='d-flex justify-content-center btn btn-danger mx-3 rounded option-btn' onClick={() => props.modalSetter({id: '', show: false})}>Cancel</button>
+                        <button className='d-flex justify-content-center btn btn-success mx-3 rounded option-btn' onClick={updateTaskHandler}>Save</button>
+                        <button className='btn btn-primary' onClick={completeTask}>Complete</button>
+
                     </div>
                 </Modal.Footer>
             </Modal>

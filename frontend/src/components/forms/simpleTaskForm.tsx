@@ -1,19 +1,24 @@
 import React, {useState, useEffect} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-
-import {usePostSimpleTasksMutation} from '../../store/api/hooks';
-import { PostSimpleTasksApiArg, SimpleTasksList } from '../../store/api/hooks';
 import PriorityDropdown from '../global/dropdown';
+import { ICategory, SimpleTaskForm } from '../../models/app_content';
+import { usePostSimpleTasksMutation } from '../../store/api/custom_api';
 
 
-export default function SimpleTaskFormComponent (props: {categories: {pk: number, title: string}[], show: boolean, setter: any}){
-	const [input, setInput] = useState<SimpleTasksList>({title: '',
-														 description: '',
-														 category: {pk: 0, title: ''},
-														 due_date: '',
-														 is_completed: false,
-														 priority: 'minor'})
+export default function SimpleTaskFormComponent (props: {
+															categories: ICategory[],
+															priority?: string,
+															show: boolean,
+															formSetter: React.Dispatch<React.SetStateAction<boolean>>},
+														){
+	const [input, setInput] = useState<SimpleTaskForm>({title: '',
+														description: '',
+														category: 0,
+														due_date: '',
+														is_completed: false,
+														priority: ''})
+	
 	const [createTask, {data, error}] = usePostSimpleTasksMutation()
 
 	useEffect(()=> {
@@ -21,25 +26,30 @@ export default function SimpleTaskFormComponent (props: {categories: {pk: number
 			setInput({
 				title: '',
 				description: '',
-				category: {pk: 0, title: ''},
+				category: '',
 				due_date: '',
 				is_completed: false,
-				priority: 'minor'
+				priority: ''
 			})
 		}
 	}, [props.show])
 
+	useEffect(()=>{
+		// success message
+		if (data && !error){
+			console.log(data)
+		}
+	}, [data, error])
+
 	const createTaskHandler = () => {
 		if (input) {
-			createTask({simpleTasksList: input})
-		} else if (error) {
-			return <><div><p>Invalid data</p></div></>
+			createTask(input)
 		}
 	}
 	
 	return (
 			<>
-				<Modal show={props.show} onHide={() => props.setter(false)}>
+				<Modal show={props.show} onHide={() => props.formSetter(false)}>
 					<Modal.Header>
 						<Modal.Title>New Task</Modal.Title>
 					</Modal.Header>
@@ -53,20 +63,35 @@ export default function SimpleTaskFormComponent (props: {categories: {pk: number
 							</Form.Group>
 							<Form.Group>
 								<Form.Label>Due Date</Form.Label>
-								<Form.Control type='date' onChange={(ev) => setInput((inp) => ({...inp, date: ev.target.value}))}/>
+								<Form.Control
+											type='date'
+											value={
+												input.due_date.toString().substring(0, 10)
+											}
+											onChange={(ev) => setInput((inp) => ({...inp, due_date: ev.target.value}))}/>
 							</Form.Group>
 							<Form.Group>
-								<PriorityDropdown choice={input.priority} setter={setInput}/>
+								<PriorityDropdown priority={props.priority} setter={setInput}/>
 							</Form.Group>
 							<Form.Group>
 								<Form.Label>Category</Form.Label>
-								<CategoryList categories={props.categories} setter={setInput}/>
+								<select onChange={(ev) => setInput((inp) => ({...inp, category: ev.target.value}))}>
+                                    {
+                                        props.categories?.map((cat) => {
+                                            return (
+                                                <>
+                                                    <option key={cat.id} value={cat.id}>{cat.title}</option>
+                                                </>
+                                            )
+                                        })
+                                    }
+                                </select>
 							</Form.Group>
 						</Form>
 					</Modal.Body>
 					<Modal.Footer>
 						<div className='d-flex justify-content-between btn-group'>
-							<button className='d-flex justify-content-center btn btn-danger mx-3 rounded option-btn' onClick={()=> props.setter(false)}>Cancel</button>
+							<button className='d-flex justify-content-center btn btn-danger mx-3 rounded option-btn' onClick={()=> props.formSetter(false)}>Cancel</button>
 							<button className='d-flex justify-content-center btn btn-success mx-3 rounded option-btn' onClick={createTaskHandler}>Create</button>
 						</div>
 					</Modal.Footer>
@@ -76,18 +101,18 @@ export default function SimpleTaskFormComponent (props: {categories: {pk: number
 }
 
 
-const CategoryList = (props: {categories: {pk: number, title: string}[], setter: React.Dispatch<React.SetStateAction<SimpleTasksList>>}) => {
+const CategoryList = (props: {categories: ICategory[], setter: React.Dispatch<React.SetStateAction<SimpleTaskForm>>}) => {
 
 	return (
 		<>
-			<Form.Control list='simple-task-categories' onChange={(ev) => props.setter((inp) => ({...inp, category: {pk: 0, title: ev.target.value}}))}/>
+			<Form.Control list='simple-task-categories' onChange={(ev) => props.setter((inp) => ({...inp, category: ev.target.value}))}/>
 				<datalist id='simple-task-categories'>
 					{
 						!!props.categories &&
 							props.categories.map((cat) => {
 								return (
 									<>
-										<option key={cat.pk} value={cat.title}/>
+										<option key={cat.id} value={cat.title}/>
 									</>
 								)
 							})

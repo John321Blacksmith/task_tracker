@@ -1,20 +1,19 @@
 import {useState, useEffect} from 'react';
-import {SimpleTaskForm} from '../../models/app_content';
-import { SimpleTasksList } from '../../store/api/hooks';
+import { SimpleTaskForm } from '../../models/app_content';
 
 
-export default function PriorityDropdown(props: {choice: string, setter: React.Dispatch<React.SetStateAction<SimpleTasksList>>}) {
+export default function PriorityDropdown(props: {priority?: string, setter: React.Dispatch<React.SetStateAction<SimpleTaskForm>>}) {
     const [choiceColor, setColor] = useState<string>('')
 
     useEffect(()=> {
-        if (props.choice === 'high'){
+        if (props.priority === 'high'){
             setColor('red')
-        } else if (props.choice === 'moderate') {
+        } else if (props.priority === 'moderate') {
             setColor('orange')
-        } else if (props.choice === 'minor') {
+        } else if (props.priority === 'minor') {
             setColor('green')
         }
-    }, [props.choice, choiceColor])
+    }, [props.priority, choiceColor])
 
     return (
         <>
@@ -26,7 +25,7 @@ export default function PriorityDropdown(props: {choice: string, setter: React.D
                         id="dropdownFilter"
                         data-bs-toggle="dropdown"
                         style={{"color": choiceColor}}
-                        aria-expanded="false">{props.choice}</a>
+                        aria-expanded="false">{props.priority}</a>
 
                     <ul className="dropdown-menu text-small shadow " aria-labelledby="dropdownFilter">
                     {
