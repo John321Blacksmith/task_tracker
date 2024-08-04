@@ -14,11 +14,11 @@ export default function SimpleTaskFormComponent (props: {
 														){
 	const [input, setInput] = useState<SimpleTaskForm>({title: '',
 														description: '',
-														category: 0,
+														category: props.categories[0].id,
 														due_date: '',
 														is_completed: false,
-														priority: ''})
-	
+														priority: props.priority})
+	 
 	const [createTask, {data, error}] = usePostSimpleTasksMutation()
 
 	useEffect(()=> {
@@ -43,10 +43,11 @@ export default function SimpleTaskFormComponent (props: {
 
 	const createTaskHandler = () => {
 		if (input) {
+			console.log(input)
 			createTask(input)
 		}
 	}
-	
+ 
 	return (
 			<>
 				<Modal show={props.show} onHide={() => props.formSetter(false)}>
