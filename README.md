@@ -4,7 +4,7 @@ to track incoming tasks.
 # Setup
 1) Clone the repository:
 ```
-git clone https://github.com/John321Blacksmith/task_tracker/tree/review-branch
+git clone https://github.com/John321Blacksmith/task_tracker.git
 ```
 2) Go to the server and install all the neccessary dependencies:
 ```
