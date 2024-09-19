@@ -14,7 +14,7 @@ export default function SimpleTaskFormComponent (props: {
 														){
 	const [input, setInput] = useState<SimpleTaskForm>({title: '',
 														description: '',
-														category: props.categories[0].id,
+														category: '', // pay attention to the field
 														due_date: '',
 														is_completed: false,
 														priority: props.priority})
