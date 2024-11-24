@@ -37,7 +37,4 @@ cd ./frontend
 ```
 npm install
 ```
-8) Launch up the frontend server:
-```
-npm start
-```
+7) Launch up the frontend server
